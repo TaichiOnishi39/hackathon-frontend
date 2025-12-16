@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { signOut, getAuth } from 'firebase/auth';
+import { signOut } from 'firebase/auth';
 import { auth } from '../../firebase';
 import { RegisterForm } from '../../features/user/components/RegisterForm';
 import { Button } from '../../components/ui/Button';
