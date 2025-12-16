@@ -1,26 +1,52 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { useEffect, useState } from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { onAuthStateChanged, User } from 'firebase/auth';
+import { auth } from './firebase';
 
-function App() {
+// 作成したページをインポート
+import { LoginPage } from './pages/LoginPage';
+import { DashboardPage } from './pages/DashboardPage';
+
+const App = () => {
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true); // ★初期ロード判定用
+
+  // 1. Firebaseのログイン状態を監視
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+      setLoading(false); // 判定完了！
+    });
+    return () => unsubscribe();
+  }, []);
+
+  // 2. 判定が終わるまでは「ロード中」を出す (これがないと一瞬ログイン画面がチラつく)
+  if (loading) {
+    return <div style={{ textAlign: 'center', marginTop: '50px' }}>Loading...</div>;
+  }
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <BrowserRouter>
+      <Routes>
+        {/* ▼ ルートパス (/) にアクセスした時 */}
+        <Route path="/" element={
+          user ? <Navigate to="/dashboard" /> : <Navigate to="/login" />
+        } />
+
+        {/* ▼ ログインページ (/login) */}
+        <Route path="/login" element={
+          // すでにログインしてるならダッシュボードへ飛ばす
+          user ? <Navigate to="/dashboard" /> : <LoginPage />
+        } />
+
+        {/* ▼ ダッシュボード (/dashboard) */}
+        <Route path="/dashboard" element={
+          // ログインしてないならログインページへ飛ばす (ガード)
+          user ? <DashboardPage /> : <Navigate to="/login" />
+        } />
+      </Routes>
+    </BrowserRouter>
   );
-}
+};
 
 export default App;
