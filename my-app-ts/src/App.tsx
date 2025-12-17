@@ -4,9 +4,12 @@ import { onAuthStateChanged, User } from 'firebase/auth';
 import { auth } from './firebase';
 
 // 作成したページをインポート
+import { PrivateRoute } from './components/auth/PrivateRoute';
 import { LoginPage } from './pages/LoginPage';
 import { DashboardPage } from './pages/DashboardPage';
 import { ProductDetailPage } from './pages/ProductDetailPage';
+import { ChatPage } from './pages/ChatPage';
+import { ChatListPage } from './pages/ChatListPage';
 
 const App = () => {
   const [user, setUser] = useState<User | null>(null);
@@ -43,11 +46,27 @@ const App = () => {
         {/* ▼ ダッシュボード (/dashboard) */}
         <Route path="/dashboard" element={
           // ログインしてないならログインページへ飛ばす (ガード)
-          user ? <DashboardPage /> : <Navigate to="/login" />
+          <PrivateRoute>
+            <DashboardPage />
+          </PrivateRoute>
         } />
 
-        {/* ★追加: 商品詳細ページ (:id が変数になります) */}
+        {/*  商品詳細ページ (:id が変数になります) */}
         <Route path="/products/:id" element={<ProductDetailPage />} />
+
+        {/*  チャットページ */}
+        <Route path="/chat/:userId" element={
+          <PrivateRoute>
+            <ChatPage />
+          </PrivateRoute>
+        } />
+
+        {/* メッセージ一覧ページ */}
+        <Route path="/messages" element={
+          <PrivateRoute>
+            <ChatListPage />
+          </PrivateRoute>  
+        } />
         
       </Routes>
     </BrowserRouter>

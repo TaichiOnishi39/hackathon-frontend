@@ -2,9 +2,13 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { useProductDetail } from './useProductDetail';
 import { Button } from '../../components/ui/Button';
+import { useNavigate } from 'react-router-dom'; 
+import { getAuth } from 'firebase/auth';
 
 export const ProductDetailPage = () => {
   const { product, loading, error, purchaseProduct } = useProductDetail();
+  const navigate = useNavigate(); 
+  const auth = getAuth();
 
   if (loading) return <div style={{ padding: '20px' }}>読み込み中...</div>;
   if (error) return <div style={{ padding: '20px', color: 'red' }}>エラー: {error}</div>;
@@ -12,6 +16,14 @@ export const ProductDetailPage = () => {
 
   // 売り切れ判定
   const isSoldOut = !!product.buyer_id;
+
+  // 自分の商品かチェック (簡易的にFirebaseUIDで比較できないので、本当はUser情報を取得すべきですが)
+  // 今回はシンプルに「全員に表示」または「購入ボタンの下」に置きます。
+  const handleChat = () => {
+    if (!product) return;
+    // 出品者のID (user_id) を使ってチャットページへ
+    navigate(`/chat/${product.user_id}`);
+  };
 
   return (
     <div style={{ maxWidth: '800px', margin: '0 auto', padding: '20px' }}>
@@ -64,6 +76,23 @@ export const ProductDetailPage = () => {
                   購入する 🛒
                 </Button>
               )}
+
+              {/* ★追加: チャットボタン */}
+              <div style={{ marginTop: '10px' }}>
+                <Button 
+                  onClick={handleChat}
+                  style={{ 
+                    width: '100%', 
+                    padding: '15px', 
+                    backgroundColor: '#fff', 
+                    color: '#0084ff', 
+                    border: '1px solid #0084ff',
+                    fontSize: '18px' 
+                  }}
+                >
+                  出品者に質問する 💬
+                </Button>
+              </div>
             </div>
           </div>
         </div>

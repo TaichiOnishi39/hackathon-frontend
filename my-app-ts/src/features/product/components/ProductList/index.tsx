@@ -2,6 +2,7 @@ import React from 'react';
 import { useProductList } from './useProductList';
 import { ProductItem } from './ProductItem';
 import { ProductSearchBar } from '../ProductSearchBar'; 
+import { MessageListButton } from '../../../chat/components/MessageListButton';
 
 type Props = {
   currentUserId: string | null;
@@ -18,6 +19,11 @@ export const ProductList = ({ currentUserId }: Props) => {
 
   return (
     <div style={{ width: '100%' }}>
+      {/* ★ ここにメッセージボタンを配置！ */}
+      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '10px' }}>
+        <MessageListButton />
+      </div>
+      
       {/* ★ ここに検索バーを配置！ */}
       <ProductSearchBar onSearch={handleSearch} />
 
