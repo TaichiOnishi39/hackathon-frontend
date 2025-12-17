@@ -10,6 +10,7 @@ export interface Product {
   user_id: string;
   user_name: string;
   image_url: string;
+  buyer_id: string;
   created_at: string;
 }
 
