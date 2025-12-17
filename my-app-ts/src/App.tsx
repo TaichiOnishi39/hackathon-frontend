@@ -10,6 +10,7 @@ import { DashboardPage } from './pages/DashboardPage';
 import { ProductDetailPage } from './pages/ProductDetailPage';
 import { ChatPage } from './pages/ChatPage';
 import { ChatListPage } from './pages/ChatListPage';
+import { MyPage } from './pages/MyPage';
 
 const App = () => {
   const [user, setUser] = useState<User | null>(null);
@@ -48,6 +49,13 @@ const App = () => {
           // ログインしてないならログインページへ飛ばす (ガード)
           <PrivateRoute>
             <DashboardPage />
+          </PrivateRoute>
+        } />
+
+        {/*マイページ */}
+        <Route path="/mypage" element={
+          <PrivateRoute>
+            <MyPage />
           </PrivateRoute>
         } />
 
