@@ -1,13 +1,14 @@
 import React from 'react';
 import { useProductRegister } from './useProductRegister';
-import { Input } from '../../../../components/ui/Input'; // 既存のInputを再利用
-import { Button } from '../../../../components/ui/Button'; // 既存のButtonを再利用
+import { Input } from '../../../../components/ui/Input';
+import { Button } from '../../../../components/ui/Button';
 
 export const ProductRegisterForm = () => {
   const {
     name, setName,
     price, setPrice,
     description, setDescription,
+    imageFile, setImageFile, // ★追加
     registerProduct,
     loading,
     error
@@ -18,8 +19,15 @@ export const ProductRegisterForm = () => {
     registerProduct();
   };
 
+  // ファイルが選択された時の処理
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setImageFile(e.target.files[0]); // 1つ目のファイルをセット
+    }
+  };
+
   return (
-    <form onSubmit={handleSubmit} style={{ border: '1px solid #ddd', padding: '20px', borderRadius: '8px', marginTop: '20px' }}>
+    <form onSubmit={handleSubmit} style={{ border: '1px solid #ddd', padding: '20px', borderRadius: '8px', marginTop: '20px', backgroundColor: '#fff' }}>
       <h3>商品を出品する</h3>
 
       <Input
@@ -39,7 +47,19 @@ export const ProductRegisterForm = () => {
         required
       />
 
-      {/* 説明文は長くなるのでtextareaを直接書きます */}
+      {/* ★追加: 画像選択フォーム */}
+      <div style={{ marginBottom: '15px' }}>
+        <label style={{ display: 'block', fontSize: '12px', marginBottom: '5px' }}>商品画像</label>
+        <input 
+          type="file" 
+          accept="image/*" // 画像のみ許可
+          onChange={handleFileChange}
+          style={{ fontSize: '14px' }}
+          required
+        />
+        {/* 選択中のファイル名を表示したければここに imageFile?.name */}
+      </div>
+
       <div style={{ marginBottom: '10px' }}>
         <label style={{ display: 'block', fontSize: '12px' }}>商品説明</label>
         <textarea
@@ -59,7 +79,7 @@ export const ProductRegisterForm = () => {
         disabled={loading}
         style={{ 
           width: '100%',
-          backgroundColor: loading ? '#ccc' : '#28a745', // 緑色にしてみる
+          backgroundColor: loading ? '#ccc' : '#28a745',
           color: 'white',
           marginTop: '10px'
         }}

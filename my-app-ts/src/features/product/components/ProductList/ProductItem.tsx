@@ -71,6 +71,16 @@ export const ProductItem = ({ product, currentUserId, onUpdate, onDelete }: Prop
   // --- 通常モードの表示 ---
   return (
     <div style={cardStyle(false)}>
+      {/* ★画像があれば表示 */}
+      {product.image_url && (
+        <div style={{ width: '100%', height: '150px', backgroundColor: '#f9f9f9', marginBottom: '10px', borderRadius: '4px', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <img 
+            src={product.image_url} 
+            alt={product.name} 
+            style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} 
+          />
+        </div>
+      )}
       <h4 style={{ margin: '0 0 8px 0', fontSize: '18px' }}>{product.name}</h4>
       <p style={{ color: '#e91e63', fontWeight: 'bold', fontSize: '20px', margin: '0 0 8px 0' }}>
         ¥{product.price.toLocaleString()}
