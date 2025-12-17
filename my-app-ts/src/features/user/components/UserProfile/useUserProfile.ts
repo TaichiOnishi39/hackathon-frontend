@@ -31,19 +31,20 @@ export const useUserProfile = () => {
         }
       });
 
-      if (res.ok) {
-        // 200 OK の場合
-        const data = await res.json();
-        // データがあればセット、なければ null のまま
-        setUserProfile(data || null);
-      } else {
-        // 500エラーなど
-        const errorText = await res.text();
-        setError(`取得エラー: ${errorText}`);
+      if (res.status === 404) {
+        setUserProfile(null);
+        return;
       }
-    } catch (err) {
+      if (!res.ok) {
+        throw new Error('Failed to fetch user profile');
+      }
+
+      const data = await res.json();
+      setUserProfile(data);
+
+    } catch (err: any) {
       console.error(err);
-      setError("ネットワークエラーが発生しました。");
+      setError(err.message);
     } finally {
       setLoading(false);
     }
