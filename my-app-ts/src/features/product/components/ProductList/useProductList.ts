@@ -17,6 +17,7 @@ export const useProductList = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
+  // 商品取得
   const fetchProducts = async () => {
     setLoading(true);
     try {
@@ -53,10 +54,47 @@ export const useProductList = () => {
     }
   };
 
+  // 商品削除ロジック
+  const deleteProduct = async (productId: string) => {
+    if (!window.confirm("本当にこの商品を削除しますか？")) return;
+
+    try {
+      const auth = getAuth();
+      const user = auth.currentUser;
+      if (!user) return;
+      const token = await user.getIdToken();
+
+      const response = await fetch(`https://hackathon-backend-80731441408.europe-west1.run.app/products?id=${productId}`, {
+        method: 'DELETE', // DELETEメソッド
+        headers: {
+          'Authorization': `Bearer ${token}`
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('削除に失敗しました');
+      }
+
+      // 成功したら、今のstateからその商品を消す（リロードしなくて済むのでサクサク動く）
+      setProducts(prev => prev.filter(p => p.id !== productId));
+      alert("商品を削除しました");
+
+    } catch (err: any) {
+      console.error(err);
+      alert(err.message);
+    }
+  };
+
   // 画面が表示されたときに1回だけ実行
   useEffect(() => {
     fetchProducts();
   }, []);
 
-  return { products, loading, error, reload: fetchProducts };
+  return {
+    products,
+    loading, 
+    error, 
+    reload: fetchProducts,
+    deleteProduct
+ };
 };

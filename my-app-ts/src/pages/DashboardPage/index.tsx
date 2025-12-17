@@ -9,7 +9,12 @@ import { RegisterForm } from '../../features/user/components/RegisterForm';
 import { ProductRegisterForm } from '../../features/product/components/ProductRegisterForm';
 import { ProductList } from '../../features/product/components/ProductList';
 
+// useUserProfileフックをインポート (自分のIDを取得するため)
+import { useUserProfile } from '../../features/user/components/UserProfile/useUserProfile';
+
 export const DashboardPage = () => {
+  // ★ ここで自分の情報を取得
+  const { userProfile } = useUserProfile();
   // ログアウト処理だけはこのページに残してもOK（あるいはHeaderコンポーネントに移動など）
   const handleLogout = async () => {
     await signOut(auth);
@@ -45,7 +50,8 @@ export const DashboardPage = () => {
           {/* 右（下）: 商品一覧 */}
           <section>
             <h3 style={{ borderBottom: '2px solid #333', paddingBottom: '10px' }}>商品タイムライン</h3>
-            <ProductList />
+            {/* 取得した自分のID (userProfile.id) を渡す */}
+            <ProductList currentUserId={userProfile?.id || null} />
           </section>
         </div>
       </main>
