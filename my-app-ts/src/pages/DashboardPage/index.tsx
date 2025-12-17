@@ -3,6 +3,7 @@ import { signOut } from 'firebase/auth';
 import { auth } from '../../firebase';
 import { RegisterForm } from '../../features/user/components/RegisterForm';
 import { ProductRegisterForm } from '../../features/product/components/ProductRegisterForm';
+import { ProductList } from '../../features/product/components/ProductList';
 import { Button } from '../../components/ui/Button';
 
 // ★ インターフェース (Goから返ってくるJSONの型定義)
@@ -76,32 +77,33 @@ export const DashboardPage = () => {
       </header>
 
       <main>
-        {/* 名前表示エリア */}
-        <div style={{ marginBottom: '20px', padding: '15px', backgroundColor: '#f0f8ff', borderRadius: '8px' }}>
-          {loading ? (
-            <p>データを読み込み中...</p>
-          ) : error ? (
-            <p style={{ color: 'red' }}>エラー: {error}</p>
-          ) : userName ? (
-            // 登録済みの名前を表示
-            <h3>ようこそ、{userName} さん！</h3>
-          ) : (
-            // 未登録の場合のメッセージ
-            <p>まだプロフィール登録がありません。以下から登録してください。</p>
-          )}
+        {/* ユーザー情報 */}
+        <div style={{ marginBottom: '30px', padding: '20px', backgroundColor: '#e3f2fd', borderRadius: '8px' }}>
+          {userName ? <h3>ようこそ、{userName} さん！</h3> : <p>ユーザー情報を読み込み中...</p>}
         </div>
 
-        <hr />
-        
-        {/* ユーザー登録フォーム */}
-        <div style={{ marginBottom: '40px' }}>
-          <p>ユーザー情報の変更</p>
-          <RegisterForm />
-        </div>
+        {/* 2カラムレイアウト風にする */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '40px' }}>
+          
+          {/* 左（上）: 各種登録フォーム */}
+          <section>
+            <h3 style={{ borderBottom: '2px solid #333', paddingBottom: '10px' }}>登録・出品</h3>
+            <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
+              <div style={{ flex: 1, minWidth: '300px' }}>
+                <ProductRegisterForm /> {/* 商品出品 */}
+              </div>
+              <div style={{ flex: 1, minWidth: '300px' }}>
+                <RegisterForm /> {/* ユーザー名変更 */}
+              </div>
+            </div>
+          </section>
 
-        {/*  商品出品フォーム */}
-        <div style={{ marginBottom: '40px' }}>
-          <ProductRegisterForm />
+          {/* 右（下）: 商品一覧 */}
+          <section>
+            <h3 style={{ borderBottom: '2px solid #333', paddingBottom: '10px' }}>商品タイムライン</h3>
+            <ProductList /> {/* ★ここに一覧を表示！ */}
+          </section>
+
         </div>
       </main>
     </div>
