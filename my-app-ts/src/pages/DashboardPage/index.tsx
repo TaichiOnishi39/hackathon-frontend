@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { signOut } from 'firebase/auth';
 import { auth } from '../../firebase';
 import { RegisterForm } from '../../features/user/components/RegisterForm';
+import { ProductRegisterForm } from '../../features/product/components/ProductRegisterForm';
 import { Button } from '../../components/ui/Button';
 
 // ★ インターフェース (Goから返ってくるJSONの型定義)
@@ -92,8 +93,16 @@ export const DashboardPage = () => {
 
         <hr />
         
-        <p>ユーザー登録・更新</p>
-        <RegisterForm />
+        {/* ユーザー登録フォーム */}
+        <div style={{ marginBottom: '40px' }}>
+          <p>ユーザー情報の変更</p>
+          <RegisterForm />
+        </div>
+
+        {/*  商品出品フォーム */}
+        <div style={{ marginBottom: '40px' }}>
+          <ProductRegisterForm />
+        </div>
       </main>
     </div>
   );
