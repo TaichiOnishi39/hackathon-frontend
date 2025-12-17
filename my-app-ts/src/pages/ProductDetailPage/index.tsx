@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import { getAuth } from 'firebase/auth';
 
 export const ProductDetailPage = () => {
-  const { product, loading, error, purchaseProduct } = useProductDetail();
+  const { product, loading, error, purchaseProduct, isLiked, toggleLike } = useProductDetail();
   const navigate = useNavigate(); 
   const auth = getAuth();
 
@@ -49,6 +49,24 @@ export const ProductDetailPage = () => {
           {/* 情報エリア */}
           <div style={{ flex: 1, minWidth: '300px', display: 'flex', flexDirection: 'column' }}>
             <h1 style={{ margin: '0 0 10px 0', fontSize: '28px' }}>{product.name}</h1>
+
+            {/* いいねボタン */}
+            <button 
+                onClick={toggleLike}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  fontSize: '32px',
+                  lineHeight: 1,
+                  color: isLiked ? '#e91e63' : '#ccc', // ONならピンク、OFFならグレー
+                  transition: 'transform 0.1s'
+                }}
+                title={isLiked ? "いいね解除" : "いいね！"}
+              >
+                {isLiked ? '♥' : '♡'}
+              </button>
+
             <p style={{ fontSize: '14px', color: '#666', marginBottom: '20px' }}>
               出品者: {product.user_name} / {new Date(product.created_at).toLocaleString()}
             </p>
