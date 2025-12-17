@@ -6,6 +6,7 @@ import { auth } from './firebase';
 // 作成したページをインポート
 import { LoginPage } from './pages/LoginPage';
 import { DashboardPage } from './pages/DashboardPage';
+import { ProductDetailPage } from './pages/ProductDetailPage';
 
 const App = () => {
   const [user, setUser] = useState<User | null>(null);
@@ -44,6 +45,10 @@ const App = () => {
           // ログインしてないならログインページへ飛ばす (ガード)
           user ? <DashboardPage /> : <Navigate to="/login" />
         } />
+
+        {/* ★追加: 商品詳細ページ (:id が変数になります) */}
+        <Route path="/products/:id" element={<ProductDetailPage />} />
+        
       </Routes>
     </BrowserRouter>
   );

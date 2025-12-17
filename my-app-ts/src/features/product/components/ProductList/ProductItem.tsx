@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Product } from './useProductList';
 import { Button } from '../../../../components/ui/Button';
 import { Input } from '../../../../components/ui/Input';
+import { Link } from 'react-router-dom';
 
 type Props = {
   product: Product;
@@ -21,6 +22,9 @@ export const ProductItem = ({ product, currentUserId, onUpdate, onDelete }: Prop
 
   // 自分の商品かどうか
   const isMyProduct = currentUserId === product.user_id;
+
+  // 売り切れ判定
+  const isSoldOut = !!product.buyer_id;
 
   const handleSave = async () => {
     // 親から渡された更新関数を実行
@@ -71,20 +75,26 @@ export const ProductItem = ({ product, currentUserId, onUpdate, onDelete }: Prop
   // --- 通常モードの表示 ---
   return (
     <div style={cardStyle(false)}>
-      {/* ★画像があれば表示 */}
-      {product.image_url && (
-        <div style={{ width: '100%', height: '150px', backgroundColor: '#f9f9f9', marginBottom: '10px', borderRadius: '4px', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <img 
-            src={product.image_url} 
-            alt={product.name} 
-            style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} 
-          />
-        </div>
-      )}
-      <h4 style={{ margin: '0 0 8px 0', fontSize: '18px' }}>{product.name}</h4>
+      {/* ★ 画像をクリックで詳細へ */}
+      <Link to={`/products/${product.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+        {product.image_url && (
+          <div style={{ width: '100%', height: '150px', backgroundColor: '#f9f9f9', marginBottom: '10px', borderRadius: '4px', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
+            <img src={product.image_url} alt={product.name} style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain', opacity: isSoldOut ? 0.6 : 1 }} />
+            {/* 売り切れバッジ */}
+            {isSoldOut && (
+              <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(0,0,0,0.3)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '20px' }}>
+                SOLD OUT
+              </div>
+            )}
+          </div>
+        )}
+        <h4 style={{ margin: '0 0 8px 0', fontSize: '18px' }}>{product.name}</h4>
+      </Link>
+
       <p style={{ color: '#e91e63', fontWeight: 'bold', fontSize: '20px', margin: '0 0 8px 0' }}>
         ¥{product.price.toLocaleString()}
       </p>
+
       <p style={{ fontSize: '14px', color: '#555', margin: '0 0 12px 0', whiteSpace: 'pre-wrap' }}>
         {product.description}
       </p>
