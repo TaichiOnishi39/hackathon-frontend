@@ -18,34 +18,29 @@ export const useProductList = () => {
   const [error, setError] = useState('');
 
   // 商品取得
-  const fetchProducts = async () => {
+  const fetchProducts = async (keyword?: string) => {
     setLoading(true);
     try {
       const auth = getAuth();
       const user = auth.currentUser;
-      
-      // 認証トークンを取得 (ログインしていれば)
       let token = '';
-      if (user) {
-        token = await user.getIdToken();
+      if (user) token = await user.getIdToken();
+
+      // ★ URLオブジェクトを使ってクエリパラメータを組み立てる
+      const url = new URL('https://hackathon-backend-80731441408.europe-west1.run.app/products');
+      if (keyword) {
+        url.searchParams.append('q', keyword); // ?q=xxx を追加
       }
 
-      // ★ GETリクエスト (バックエンドの ProductSearchController が処理)
-      const response = await fetch('https://hackathon-backend-80731441408.europe-west1.run.app/products', {
+      const response = await fetch(url.toString(), {
         method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          // 認証が必要な場合のためにトークンを付与
-          'Authorization': token ? `Bearer ${token}` : ''
-        },
+        headers: { 'Authorization': token ? `Bearer ${token}` : '' },
       });
 
-      if (!response.ok) {
-        throw new Error('商品リストの取得に失敗しました');
-      }
-
+      if (!response.ok) throw new Error('商品リストの取得に失敗しました');
       const data = await response.json();
-      setProducts(data || []); // nullなら空配列に
+      setProducts(data || []);
+      
     } catch (err: any) {
       console.error(err);
       setError(err.message);
@@ -140,6 +135,7 @@ export const useProductList = () => {
     error, 
     reload: fetchProducts,
     deleteProduct,
-    updateProduct
+    updateProduct,
+    searchProducts: fetchProducts
  };
 };
