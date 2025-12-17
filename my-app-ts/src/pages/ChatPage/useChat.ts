@@ -1,0 +1,81 @@
+import { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
+import { getAuth } from 'firebase/auth';
+
+export interface Message {
+  id: string;
+  sender_id: string;
+  receiver_id: string;
+  content: string;
+  created_at: string;
+}
+
+export const useChat = () => {
+  const { userId } = useParams<{ userId: string }>(); // URLから相手のIDを取得
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [inputText, setInputText] = useState('');
+  const [loading, setLoading] = useState(true);
+  
+  const auth = getAuth();
+  const myId = auth.currentUser?.uid; // 自分のFirebaseUID (※注: バックエンドでUserテーブルのIDと照合されます)
+
+  // 1. チャット履歴の取得
+  const fetchMessages = async () => {
+    if (!userId) return;
+    try {
+      const user = auth.currentUser;
+      if (!user) return;
+      const token = await user.getIdToken();
+
+      const res = await fetch(`https://hackathon-backend-80731441408.europe-west1.run.app/messages?user_id=${userId}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (!res.ok) throw new Error('チャットの取得に失敗しました');
+      const data = await res.json();
+      setMessages(data || []); // nullなら空配列
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // 2. メッセージ送信
+  const sendMessage = async () => {
+    if (!inputText.trim() || !userId) return;
+    try {
+      const user = auth.currentUser;
+      if (!user) return;
+      const token = await user.getIdToken();
+
+      const res = await fetch(`https://hackathon-backend-80731441408.europe-west1.run.app/messages`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          receiver_id: userId,
+          content: inputText
+        })
+      });
+
+      if (!res.ok) throw new Error('送信に失敗しました');
+      
+      // 送信成功したら入力欄を空にして、再取得（またはリストに追加）
+      setInputText('');
+      fetchMessages(); 
+      
+    } catch (err) {
+      console.error(err);
+      alert('送信できませんでした');
+    }
+  };
+
+  // 初回読み込み 
+  useEffect(() => {
+    fetchMessages();
+  }, [userId]);
+
+  return { messages, inputText, setInputText, sendMessage, loading, partnerId: userId };
+};
