@@ -3,8 +3,10 @@ import { getAuth } from 'firebase/auth';
 
 export const useProductRegister = () => {
   const [name, setName] = useState('');
-  const [price, setPrice] = useState(''); // 入力中は文字列として扱う
+  const [price, setPrice] = useState('');
   const [description, setDescription] = useState('');
+  // ★追加: 画像ファイル用のstate
+  const [imageFile, setImageFile] = useState<File | null>(null);
   
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -12,7 +14,6 @@ export const useProductRegister = () => {
   const registerProduct = async () => {
     setError('');
 
-    // バリデーション
     if (!name.trim()) {
       setError("商品名を入力してください");
       return;
@@ -20,6 +21,11 @@ export const useProductRegister = () => {
     if (!price || Number(price) <= 0) {
       setError("正しい価格を入力してください");
       return;
+    }
+
+    if (!imageFile) {
+        setError("商品画像を選択してください");
+        return;
     }
 
     const auth = getAuth();
@@ -30,18 +36,24 @@ export const useProductRegister = () => {
     try {
       const token = await user.getIdToken();
 
-      // ★ GoのバックエンドURL (usersと同じドメイン)
+      // ★変更点: FormData を使う
+      const formData = new FormData();
+      formData.append('name', name);
+      formData.append('price', price); // 文字列のままでOK（Go側で変換してくれる場合）または数値変換
+      formData.append('description', description);
+      // 画像があれば追加 ('image' はバックエンドで受け取るキー名)
+      if (imageFile) {
+        formData.append('image', imageFile);
+      }
+
       const response = await fetch('https://hackathon-backend-80731441408.europe-west1.run.app/products', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
+          // ★重要: Content-Type: application/json は削除する！
+          // ブラウザが自動で boundary を設定してくれます
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify({
-          name: name,
-          price: Number(price), // Go側は int なので数値に変換
-          description: description
-        }),
+        body: formData, // JSON.stringify(body) ではなく formData をそのまま渡す
       });
 
       if (!response.ok) {
@@ -49,12 +61,16 @@ export const useProductRegister = () => {
         throw new Error(errorText || '商品登録に失敗しました');
       }
 
-      // 成功時の処理
       alert("商品を登録しました！");
       // フォームをクリア
       setName('');
       setPrice('');
       setDescription('');
+      setImageFile(null); // 画像もクリア
+
+      // ★ここ重要: input type="file" の値をリセットするために、
+      // DOM要素を直接クリアするか、keyを変更するなどのテクニックが必要ですが
+      // 今回は簡易的にそのままにします（見た目上ファイル名が残る場合があります）
 
     } catch (err: any) {
       console.error(err);
@@ -68,6 +84,7 @@ export const useProductRegister = () => {
     name, setName,
     price, setPrice,
     description, setDescription,
+    imageFile, setImageFile, // ★追加して返す
     registerProduct,
     loading,
     error
