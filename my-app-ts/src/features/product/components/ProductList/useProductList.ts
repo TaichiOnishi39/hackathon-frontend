@@ -85,6 +85,50 @@ export const useProductList = () => {
     }
   };
 
+  // 商品更新ロジック
+  const updateProduct = async (id: string, name: string, description: string, price: number) => {
+    try {
+      const auth = getAuth();
+      const user = auth.currentUser;
+      if (!user) return false;
+      const token = await user.getIdToken();
+
+      const response = await fetch(`https://hackathon-backend-80731441408.europe-west1.run.app/products?id=${id}`, {
+        method: 'PUT', // PUTメソッド
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          name,
+          description,
+          price
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('更新に失敗しました');
+      }
+
+      // 成功したら、一覧データ(products)の中身も書き換える
+      setProducts(prev => prev.map(p => {
+        if (p.id === id) {
+          // 更新された新しい情報で上書き
+          return { ...p, name, description, price };
+        }
+        return p;
+      }));
+      
+      alert("商品を更新しました");
+      return true; // 成功したことを呼び出し元に伝える
+
+    } catch (err: any) {
+      console.error(err);
+      alert(err.message);
+      return false;
+    }
+  };
+
   // 画面が表示されたときに1回だけ実行
   useEffect(() => {
     fetchProducts();
@@ -95,6 +139,7 @@ export const useProductList = () => {
     loading, 
     error, 
     reload: fetchProducts,
-    deleteProduct
+    deleteProduct,
+    updateProduct
  };
 };
