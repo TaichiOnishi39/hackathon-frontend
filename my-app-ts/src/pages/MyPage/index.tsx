@@ -61,11 +61,6 @@ export const MyPage = () => {
             <div style={{ marginTop: '20px' }}>
               <ProductRegisterForm />
             </div>
-            {!userProfile && (
-              <div style={{ marginTop: '20px' }}>
-                <RegisterForm />
-              </div>
-            )}
           </div>
 
           {/* 右カラム: 履歴タブ */}
