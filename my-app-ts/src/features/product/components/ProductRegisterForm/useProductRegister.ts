@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { getAuth } from 'firebase/auth';
+import { useNavigate } from 'react-router-dom';
 
 export const useProductRegister = () => {
   const [name, setName] = useState('');
@@ -13,6 +14,8 @@ export const useProductRegister = () => {
   const [aiLoading, setAiLoading] = useState(false);
   const [keywords, setKeywords] = useState('');
   const [showAiInput, setShowAiInput] = useState(false);
+
+  const navigate = useNavigate();
 
   // AI生成関数
   const generateDescription = async () => {
@@ -163,9 +166,7 @@ export const useProductRegister = () => {
       setDescription('');
       setImageFile(null); // 画像もクリア
 
-      // ★ここ重要: input type="file" の値をリセットするために、
-      // DOM要素を直接クリアするか、keyを変更するなどのテクニックが必要ですが
-      // 今回は簡易的にそのままにします（見た目上ファイル名が残る場合があります）
+      navigate('/');
 
     } catch (err: any) {
       console.error(err);

@@ -20,7 +20,10 @@ export const DashboardPage = () => {
       <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
         <h2 style={{ margin: 0 }}>フリフリ</h2>
         <div style={{ display: 'flex', gap: '10px' }}>
-            {/* マイページへのリンクボタン */}
+            <Link to="/sell">
+                <Button style={{ backgroundColor: '#e91e63' }}>出品する 📷</Button>
+            </Link>
+            
             <Link to="/mypage">
                 <Button style={{ backgroundColor: '#28a745' }}>マイページ 👤</Button>
             </Link>
