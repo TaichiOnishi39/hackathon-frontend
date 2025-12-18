@@ -1,80 +1,21 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Product } from './useProductList';
-import { Button } from '../../../../components/ui/Button';
-import { Input } from '../../../../components/ui/Input';
 import { Link } from 'react-router-dom';
 
 type Props = {
   product: Product;
   currentUserId: string | null;
-  onUpdate: (id: string, name: string, desc: string, price: number) => Promise<boolean>;
-  onDelete: (id: string) => Promise<void>;
 };
 
-export const ProductItem = ({ product, currentUserId, onUpdate, onDelete }: Props) => {
-  // ★ 編集モードかどうかは、このカード自身が管理する
-  const [isEditing, setIsEditing] = useState(false);
-
-  // フォーム用ステート
-  const [name, setName] = useState(product.name);
-  const [price, setPrice] = useState(String(product.price));
-  const [desc, setDesc] = useState(product.description);
-
+export const ProductItem = ({ product, currentUserId }: Props) => {
   // 自分の商品かどうか
   const isMyProduct = currentUserId === product.user_id;
 
   // 売り切れ判定
   const isSoldOut = !!product.buyer_id;
 
-  const handleSave = async () => {
-    // 親から渡された更新関数を実行
-    const success = await onUpdate(product.id, name, desc, Number(price));
-    if (success) {
-      setIsEditing(false); // 成功したら閲覧モードに戻る
-    }
-  };
-
-  const handleCancel = () => {
-    setIsEditing(false);
-    // 入力内容を元に戻す
-    setName(product.name);
-    setPrice(String(product.price));
-    setDesc(product.description);
-  };
-
-  // --- 編集モードの表示 ---
-  if (isEditing) {
-    return (
-      <div style={cardStyle(true)}>
-        <div style={{ marginBottom: '10px' }}>
-          <Input label="商品名" value={name} onChange={(e) => setName(e.target.value)} />
-        </div>
-        <div style={{ marginBottom: '10px' }}>
-          <Input label="価格" type="number" value={price} onChange={(e) => setPrice(e.target.value)} />
-        </div>
-        <div style={{ marginBottom: '10px' }}>
-          <label style={{ fontSize: '12px', display: 'block' }}>説明</label>
-          <textarea
-            style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }}
-            value={desc}
-            onChange={(e) => setDesc(e.target.value)}
-          />
-        </div>
-        <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
-          <Button onClick={handleCancel} style={{ backgroundColor: '#6c757d', fontSize: '12px', padding: '4px 8px' }}>
-            キャンセル
-          </Button>
-          <Button onClick={handleSave} style={{ backgroundColor: '#28a745', fontSize: '12px', padding: '4px 8px' }}>
-            保存
-          </Button>
-        </div>
-      </div>
-    );
-  }
-
-  // --- 通常モードの表示 ---
   return (
-    <div style={cardStyle(false)}>
+    <div style={cardStyle}>
       {/* ★ 画像をクリックで詳細へ */}
       <Link to={`/products/${product.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
         {product.image_url && (
@@ -95,41 +36,33 @@ export const ProductItem = ({ product, currentUserId, onUpdate, onDelete }: Prop
         ¥{product.price.toLocaleString()}
       </p>
 
-      <p style={{ fontSize: '14px', color: '#555', margin: '0 0 12px 0', whiteSpace: 'pre-wrap' }}>
+      <p style={{ fontSize: '14px', color: '#555', margin: '0 0 12px 0', whiteSpace: 'pre-wrap', overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical' }}>
         {product.description}
       </p>
 
-      <div style={{ borderTop: '1px solid #eee', paddingTop: '8px', fontSize: '12px', color: '#999' }}>
-        出品者: {product.user_name}<br />
-        {new Date(product.created_at).toLocaleString()}
+      <div style={{ borderTop: '1px solid #eee', paddingTop: '8px', fontSize: '12px', color: '#999', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <span>
+          出品者: {product.user_name}<br />
+          {new Date(product.created_at).toLocaleString()}
+        </span>
+        
+        {/* ★編集・削除ボタンの代わりにラベルを表示 */}
+        {isMyProduct && (
+          <span style={{ backgroundColor: '#e9ecef', color: '#495057', padding: '2px 6px', borderRadius: '4px', fontSize: '10px', fontWeight: 'bold' }}>
+            あなたの商品
+          </span>
+        )}
       </div>
-
-      {isMyProduct && (
-        <div style={{ marginTop: '10px', textAlign: 'right', display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
-          <Button
-            onClick={() => setIsEditing(true)}
-            style={{ backgroundColor: '#ffc107', color: '#000', fontSize: '12px', padding: '4px 8px' }}
-          >
-            編集
-          </Button>
-          <Button
-            onClick={() => onDelete(product.id)}
-            style={{ backgroundColor: '#dc3545', fontSize: '12px', padding: '4px 8px' }}
-          >
-            削除
-          </Button>
-        </div>
-      )}
     </div>
   );
 };
 
-// スタイル定義（共通化）
-const cardStyle = (isEditing: boolean): React.CSSProperties => ({
-  border: isEditing ? '2px solid #007bff' : '1px solid #ddd',
+// スタイル定義
+const cardStyle: React.CSSProperties = {
+  border: '1px solid #ddd',
   borderRadius: '8px',
   padding: '16px',
   backgroundColor: '#fff',
   boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
   position: 'relative',
-});
+};

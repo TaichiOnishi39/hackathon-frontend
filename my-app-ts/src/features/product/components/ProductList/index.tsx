@@ -9,22 +9,19 @@ type Props = {
 };
 
 export const ProductList = ({ currentUserId }: Props) => {
-  // ★ searchProducts を受け取る
-  const { products, loading, error, deleteProduct, updateProduct, searchProducts } = useProductList();
+  // deleteProduct, updateProduct はここでは使わなくなりました
+  const { products, loading, error, searchProducts } = useProductList();
 
-  // ★ 検索バーから呼ばれる関数
   const handleSearch = (keyword: string) => {
     searchProducts(keyword);
   };
 
   return (
     <div style={{ width: '100%' }}>
-      {/* ★ ここにメッセージボタンを配置！ */}
       <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '10px' }}>
         <MessageListButton />
       </div>
       
-      {/* ★ ここに検索バーを配置！ */}
       <ProductSearchBar onSearch={handleSearch} />
 
       {loading ? (
@@ -40,8 +37,7 @@ export const ProductList = ({ currentUserId }: Props) => {
               key={product.id}
               product={product}
               currentUserId={currentUserId}
-              onUpdate={updateProduct}
-              onDelete={deleteProduct}
+              // onUpdate, onDelete を削除
             />
           ))}
         </div>
