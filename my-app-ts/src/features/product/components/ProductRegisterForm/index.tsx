@@ -10,6 +10,7 @@ export const ProductRegisterForm = () => {
     price, setPrice,
     description, setDescription,
     imageFile, setImageFile,
+    previewUrl,
     registerProduct,
     loading,
     error,
@@ -196,11 +197,52 @@ export const ProductRegisterForm = () => {
         <div style={styles.section}>
           <label style={{...styles.label, display: 'block', marginBottom: '8px'}}>商品画像</label>
           <div style={styles.imageArea}>
+
+            {previewUrl ? (
+                <div style={{ position: 'relative', width: '100%', textAlign: 'center', marginBottom: '10px' }}>
+                    <img 
+                        src={previewUrl} 
+                        alt="プレビュー" 
+                        style={{ 
+                            maxWidth: '100%', 
+                            maxHeight: '300px', // 高くなりすぎないように制限
+                            borderRadius: '8px', 
+                            objectFit: 'contain',
+                            boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+                        }} 
+                    />
+                    {/* 画像変更/削除ボタン */}
+                    <div style={{ marginTop: '8px' }}>
+                        <button
+                            type="button"
+                            onClick={() => {
+                                setImageFile(null); // 画像をクリア
+                                // ※inputのvalueをリセットするのはReactだと少し手間なので、
+                                // UI上は「別のファイルを選択」するか、このボタンで消すかになります
+                            }}
+                            style={{
+                                backgroundColor: '#fff',
+                                border: '1px solid #ccc',
+                                borderRadius: '4px',
+                                padding: '4px 10px',
+                                cursor: 'pointer',
+                                fontSize: '12px'
+                            }}
+                        >
+                            画像を削除
+                        </button>
+                    </div>
+                </div>
+            ) : (
+                // 画像がないときは大きなアイコンなどを出しても良いかも
+                <div style={{ padding: '20px', color: '#ccc', fontSize: '40px' }}>📷</div>
+            )}
             <input 
               type="file" 
               accept="image/*"
               onChange={handleFileChange}
-              required
+              required={!imageFile} // 画像があれば必須ではなくなる(更新時などに便利だが今回は新規登録なので常時requiredでも可)
+              style={{ width: '100%' }}
             />
             
             {imageFile && (
