@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useChat } from './useChat';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
@@ -70,6 +70,28 @@ export const ChatPage = () => {
                 wordBreak: 'break-word',
                 whiteSpace: 'pre-wrap'
               }}>
+
+                {/* ★追加: 商品情報の表示 */}
+                {msg.product_id && (
+                  <div style={{ 
+                    fontSize: '0.85em', 
+                    marginBottom: '8px', 
+                    paddingBottom: '8px',
+                    borderBottom: '1px solid rgba(0,0,0,0.1)'
+                  }}>
+                    <span style={{opacity: 0.8, marginRight: '5px'}}>商品:</span>
+                    <Link 
+                      to={`/products/${msg.product_id}`} 
+                      style={{ 
+                        color: isMe ? '#fff' : '#007bff', 
+                        fontWeight: 'bold',
+                        textDecoration: 'underline'
+                      }}
+                    >
+                      {msg.product_name || '商品ページを確認'}
+                    </Link>
+                  </div>
+                )}
                 {msg.content}
               </div>
             </div>
