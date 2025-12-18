@@ -18,7 +18,7 @@ export const DashboardPage = () => {
   return (
     <div style={{ maxWidth: '1000px', margin: '0 auto', padding: '20px' }}>
       <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
-        <h2 style={{ margin: 0 }}>Dashboard</h2>
+        <h2 style={{ margin: 0 }}>フリフリ</h2>
         <div style={{ display: 'flex', gap: '10px' }}>
             {/* マイページへのリンクボタン */}
             <Link to="/mypage">
