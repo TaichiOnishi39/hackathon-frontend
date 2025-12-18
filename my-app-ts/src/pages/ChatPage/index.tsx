@@ -6,7 +6,7 @@ import { Input } from '../../components/ui/Input';
 import { getAuth } from 'firebase/auth';
 
 export const ChatPage = () => {
-  const { messages, inputText, setInputText, sendMessage, loading } = useChat();
+  const { messages, inputText, setInputText, sendMessage, loading, partnerId, isSending, partner } = useChat();
   const auth = getAuth();
   const navigate = useNavigate();
   // 注: ここでの currentUser.uid は FirebaseのUIDです。
@@ -16,17 +16,28 @@ export const ChatPage = () => {
   // 自分のメッセージかどうかを判定するために、APIレスポンスに「これは自分だよフラグ」があるのが理想ですが
   // 今回は「送信したら右に出る」雰囲気を作るため、
   // 「sender_id が partnerId (URLのID) と違うなら自分」とみなします。
-  const { partnerId } = useChat();
 
   // 自動スクロール用
   const bottomRef = useRef<HTMLDivElement>(null);
+  const isFirstLoad = useRef(true);
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
+    if (loading || messages.length === 0) return;
+    if (isFirstLoad.current) {
+        bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+        isFirstLoad.current = false; // 一度スクロールしたらフラグを折る
+      }
+  }, [messages, loading]);
+
+  const handleSend = async () => {
+    await sendMessage();
+    // 送信してメッセージが増えたタイミングに合わせてスクロール
+    setTimeout(() => {
+      bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }, 100);
+  };
 
   return (
     <div style={{ maxWidth: '600px', margin: '0 auto', height: '90vh', display: 'flex', flexDirection: 'column' }}>
-      <h2 style={{ padding: '10px', borderBottom: '1px solid #ddd' }}>チャット</h2>
 
       {/* 戻るボタン */}
       <div style={{ 
@@ -49,7 +60,27 @@ export const ChatPage = () => {
         >
           &lt; 戻る
         </button>
-        <h2 style={{ margin: 0, fontSize: '18px' }}>チャット</h2>
+        <div style={{ flex: 1 }}>
+            {partner ? (
+                <Link 
+                    to={`/users/${partner.id}`} 
+                    style={{ 
+                        textDecoration: 'none', 
+                        color: '#333',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px'
+                    }}
+                >
+                    <h2 style={{ margin: 0, fontSize: '18px' }}>{partner.name}</h2>
+                    <span style={{ fontSize: '12px', color: '#007bff', border: '1px solid #007bff', padding: '2px 6px', borderRadius: '12px' }}>
+                        プロフィールを見る
+                    </span>
+                </Link>
+            ) : (
+                <h2 style={{ margin: 0, fontSize: '18px' }}>チャット</h2>
+            )}
+        </div>
       </div>
 
       {/* メッセージ表示エリア */}
@@ -60,6 +91,17 @@ export const ChatPage = () => {
           
           return (
             <div key={msg.id} style={{ display: 'flex', justifyContent: isMe ? 'flex-end' : 'flex-start', marginBottom: '10px' }}>
+              
+              {!isMe && (
+                  <div style={{ 
+                      width: '32px', height: '32px', borderRadius: '50%', backgroundColor: '#ddd', marginRight: '8px',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', color: '#666'
+                  }}>
+                      {/* 名前があれば頭文字、なければ '?' */}
+                      {partner ? partner.name.charAt(0) : '?'}
+                  </div>
+              )}
+
               <div style={{
                 maxWidth: '70%',
                 padding: '10px 14px',
@@ -107,10 +149,28 @@ export const ChatPage = () => {
             value={inputText} 
             onChange={(e) => setInputText(e.target.value)}
             placeholder="メッセージを入力..."
-            onKeyDown={(e) => { if(e.key === 'Enter') sendMessage(); }}
+            disabled={isSending}
+            onKeyDown={(e) => { 
+                if(e.key === 'Enter' && !e.nativeEvent.isComposing && !isSending) {
+                    handleSend(); 
+                }
+            }}
           />
         </div>
-        <Button onClick={sendMessage} style={{ height: '40px' }}>送信</Button>
+
+        <button 
+            onClick={handleSend} 
+            disabled={isSending || !inputText.trim()} // ★送信中または空文字ならボタン無効
+            style={{ 
+                padding: '8px 16px',
+                backgroundColor: isSending ? '#ccc' : '#007bff', // 送信中はグレーアウト
+                color: '#fff',
+                border: 'none',
+                cursor: isSending ? 'not-allowed' : 'pointer'
+            }}
+        >
+            {isSending ? '送信中...' : '送信'}
+        </button>
       </div>
     </div>
   );

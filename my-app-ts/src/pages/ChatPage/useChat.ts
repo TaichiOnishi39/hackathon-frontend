@@ -12,6 +12,11 @@ export interface Message {
   product_name?: string;
 }
 
+export interface ChatUser {
+    id: string;
+    name: string;
+}
+
 export const useChat = () => {
   const { userId } = useParams<{ userId: string }>(); 
   const [searchParams] = useSearchParams();
@@ -20,6 +25,8 @@ export const useChat = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputText, setInputText] = useState('');
   const [loading, setLoading] = useState(true);
+  const [isSending, setIsSending] = useState(false);
+  const [partner, setPartner] = useState<ChatUser | null>(null);
   
   const auth = getAuth();
   const myId = auth.currentUser?.uid; // 自分のFirebaseUID (※注: バックエンドでUserテーブルのIDと照合されます)
@@ -45,6 +52,18 @@ export const useChat = () => {
     }
   };
 
+  const fetchPartner = async () => {
+    if (!userId) return;
+    try {
+        const res = await fetch(`https://hackathon-backend-80731441408.europe-west1.run.app/users/${userId}`);
+        if (!res.ok) throw new Error('ユーザー情報の取得に失敗');
+        const data = await res.json();
+        setPartner(data);
+    } catch (err) {
+        console.error(err);
+    }
+  };
+
   // 既読にする処理
   const markAsRead = async () => {
     if (!userId) return;
@@ -66,6 +85,9 @@ export const useChat = () => {
   // 2. メッセージ送信
   const sendMessage = async () => {
     if (!inputText.trim() || !userId) return;
+    if (isSending) return; 
+
+    setIsSending(true);
     try {
       const user = auth.currentUser;
       if (!user) return;
@@ -93,14 +115,29 @@ export const useChat = () => {
     } catch (err) {
       console.error(err);
       alert('送信できませんでした');
+    }finally{
+      setIsSending(false);
     }
   };
 
   // 初回読み込み 
   useEffect(() => {
+    if (!userId) return;
     fetchMessages();
+    fetchPartner();
     markAsRead();
+
+    const intervalId = setInterval(() => {
+        fetchMessages();
+        // 相手がメッセージを送ってきたら、見ている間はすぐに既読にする
+        markAsRead(); 
+      }, 3000);
+    return () => {
+      clearInterval(intervalId);
+    };  
   }, [userId]);
 
-  return { messages, inputText, setInputText, sendMessage, loading, partnerId: userId };
+
+
+  return { messages, inputText, setInputText, sendMessage, loading, partnerId: userId, isSending, partner};
 };

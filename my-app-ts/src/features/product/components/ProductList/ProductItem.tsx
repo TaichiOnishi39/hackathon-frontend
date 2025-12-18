@@ -83,7 +83,7 @@ export const ProductItem = ({ product, currentUserId }: Props) => {
 
       <div style={{ borderTop: '1px solid #eee', paddingTop: '8px', fontSize: '12px', color: '#999', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <span>
-          出品者: {product.user_name}<br />
+          出品者: <Link to={`/users/${product.user_id}`} style={{ color: '#007bff', textDecoration: 'none' }}>{product.user_name}</Link><br />
           {new Date(product.created_at).toLocaleString()}
         </span>
         

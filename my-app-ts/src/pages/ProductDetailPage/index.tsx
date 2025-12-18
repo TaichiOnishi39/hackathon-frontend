@@ -120,7 +120,7 @@ export const ProductDetailPage = () => {
             </div>
 
             <p style={{ fontSize: '14px', color: '#666', marginBottom: '20px' }}>
-              出品者: {product.user_name} / {new Date(product.created_at).toLocaleString()}
+              出品者: <Link to={`/users/${product.user_id}`} style={{ color: '#007bff', fontWeight: 'bold', textDecoration: 'none' }}>{product.user_name}</Link> / {new Date(product.created_at).toLocaleString()}
             </p>
             
             <p style={{ fontSize: '32px', fontWeight: 'bold', color: '#e91e63', margin: '0 0 30px 0' }}>
