@@ -43,7 +43,7 @@ export const ProductRegisterForm = () => {
       />
 
       <Input
-        label="価格 (円)"
+        label="価格 (円) 数字のみ入力してください"
         type="number"
         placeholder="例: 3000"
         value={price}
