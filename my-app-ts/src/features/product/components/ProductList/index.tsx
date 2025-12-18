@@ -18,9 +18,6 @@ export const ProductList = ({ currentUserId }: Props) => {
 
   return (
     <div style={{ width: '100%' }}>
-      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '10px' }}>
-        <MessageListButton />
-      </div>
       
       <ProductSearchBar onSearch={handleSearch} />
 

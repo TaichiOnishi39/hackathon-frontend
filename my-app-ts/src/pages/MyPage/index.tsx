@@ -17,10 +17,6 @@ export const MyPage = () => {
 
   const [activeTab, setActiveTab] = useState<'selling' | 'purchased' | 'liked'>('selling');
 
-  const handleLogout = async () => {
-    await signOut(auth);
-  };
-
   const renderGrid = (products: any[]) => {
     if (loading) return <p>読み込み中...</p>;
     if (products.length === 0) return <p>商品はありません。</p>;
@@ -43,10 +39,9 @@ export const MyPage = () => {
     <div style={{ maxWidth: '1000px', margin: '0 auto', padding: '20px' }}>
       <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-          <h2 style={{ margin: 0 }}>My Page</h2>
+          <h2 style={{ margin: 0 }}>マイページ</h2>
           <Link to="/" style={{ textDecoration: 'none', color: '#007bff' }}>&lt; ホームに戻る</Link>
         </div>
-        <Button onClick={handleLogout} style={{ backgroundColor: '#666' }}>ログアウト</Button>
       </header>
 
       <main>
