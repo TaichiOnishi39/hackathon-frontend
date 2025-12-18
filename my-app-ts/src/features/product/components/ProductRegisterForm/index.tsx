@@ -13,8 +13,8 @@ export const ProductRegisterForm = () => {
     loading,
     error,
     generateDescription,
+    generateFromImage,
     aiLoading,
-    // ★追加
     keywords, setKeywords,
     showAiInput, setShowAiInput
   } = useProductRegister();
@@ -53,13 +53,37 @@ export const ProductRegisterForm = () => {
 
       <div style={{ marginBottom: '15px' }}>
         <label style={{ display: 'block', fontSize: '12px', marginBottom: '5px' }}>商品画像</label>
-        <input 
-          type="file" 
-          accept="image/*"
-          onChange={handleFileChange}
-          style={{ fontSize: '14px' }}
-          required
-        />
+        <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+          <input 
+            type="file" 
+            accept="image/*"
+            onChange={handleFileChange}
+            style={{ fontSize: '14px' }}
+            required
+          />
+          
+          {/* ★追加: 画像解析ボタン */}
+          {imageFile && (
+            <button
+              type="button"
+              onClick={generateFromImage}
+              disabled={aiLoading}
+              style={{
+                backgroundColor: '#e91e63', // ピンク色で目立たせる
+                color: 'white',
+                border: 'none',
+                borderRadius: '20px',
+                padding: '6px 12px',
+                fontSize: '12px',
+                cursor: aiLoading ? 'not-allowed' : 'pointer',
+                display: 'flex', alignItems: 'center', gap: '5px',
+                boxShadow: '0 2px 5px rgba(233,30,99,0.3)'
+              }}
+            >
+              {aiLoading ? '解析中...' : '📷 画像から自動入力'}
+            </button>
+          )}
+        </div>
       </div>
 
       <div style={{ marginBottom: '10px' }}>

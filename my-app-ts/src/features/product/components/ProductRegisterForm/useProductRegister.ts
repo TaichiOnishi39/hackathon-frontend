@@ -60,6 +60,52 @@ export const useProductRegister = () => {
     }
   };
 
+  // ★追加: 画像解析関数
+  const generateFromImage = async () => {
+    if (!imageFile) {
+      alert("先に画像を選択してください！");
+      return;
+    }
+
+    setAiLoading(true);
+    try {
+      const auth = getAuth();
+      const user = auth.currentUser;
+      if (!user) return;
+      const token = await user.getIdToken();
+
+      // 画像を送信するための FormData
+      const formData = new FormData();
+      formData.append('image', imageFile);
+
+      const res = await fetch('https://hackathon-backend-80731441408.europe-west1.run.app/products/generate-from-image', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        },
+        body: formData, // JSONではなくFormDataを送る
+      });
+
+      if (!res.ok) throw new Error('解析に失敗しました');
+
+      const data = await res.json();
+      
+      // 解析結果をフォームにセット！
+      if (data.name) setName(data.name);
+      if (data.price) setPrice(String(data.price));
+      if (data.description) setDescription(data.description);
+      if (data.keywords) setKeywords(data.keywords); // キーワード欄も埋める
+
+      alert("画像から情報を読み取りました！✨");
+      
+    } catch (e: any) {
+      console.error(e);
+      alert("読み取りに失敗しました: " + e.message);
+    } finally {
+      setAiLoading(false);
+    }
+  };
+
   const registerProduct = async () => {
     setError('');
 
@@ -140,6 +186,7 @@ export const useProductRegister = () => {
     generateDescription, 
     aiLoading,
     keywords, setKeywords,
-    showAiInput, setShowAiInput
+    showAiInput, setShowAiInput,
+    generateFromImage,
   };
 };
