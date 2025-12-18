@@ -2,10 +2,12 @@ import React from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { signOut } from 'firebase/auth';
 import { auth } from '../../firebase';
+import { useGlobalUnread } from '../../hooks/useGlobalUnread';
 
 export const MainLayout = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { totalUnreadCount } = useGlobalUnread();
 
   // ログアウト処理
   const handleLogout = async () => {
@@ -43,8 +45,13 @@ export const MainLayout = () => {
 
         {/* 右側のアイコン群 */}
         <div style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
-          <Link to="/messages" style={{ textDecoration: 'none', fontSize: '24px' }} title="メッセージ">
+          <Link to="/messages" className="relative text-gray-500 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium flex items-center">
             💬
+            {totalUnreadCount > 0 && (
+              <span className="absolute top-1 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white transform translate-x-1/4 -translate-y-1/4 bg-red-600 rounded-full">
+                {totalUnreadCount > 99 ? '99+' : totalUnreadCount}
+              </span>
+            )}
           </Link>
           
           <Link to="/mypage" style={{ textDecoration: 'none', fontSize: '24px' }} title="マイページ">

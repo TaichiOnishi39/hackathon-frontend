@@ -45,6 +45,24 @@ export const useChat = () => {
     }
   };
 
+  // 既読にする処理
+  const markAsRead = async () => {
+    if (!userId) return;
+    try {
+      const user = auth.currentUser;
+      if (!user) return;
+      const token = await user.getIdToken();
+
+      // エラーになっても画面操作を止める必要はないので await はするがエラーハンドリングはログ出力程度
+      await fetch(`https://hackathon-backend-80731441408.europe-west1.run.app/messages/read?partner_id=${userId}`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` }
+      });
+    } catch (err) {
+      console.error("既読処理に失敗:", err);
+    }
+  };
+
   // 2. メッセージ送信
   const sendMessage = async () => {
     if (!inputText.trim() || !userId) return;
@@ -81,6 +99,7 @@ export const useChat = () => {
   // 初回読み込み 
   useEffect(() => {
     fetchMessages();
+    markAsRead();
   }, [userId]);
 
   return { messages, inputText, setInputText, sendMessage, loading, partnerId: userId };

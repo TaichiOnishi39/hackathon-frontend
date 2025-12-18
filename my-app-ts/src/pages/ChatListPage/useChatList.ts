@@ -6,6 +6,7 @@ export interface ChatSummary {
   partner_name: string;
   last_message: string;
   last_time: string;
+  unread_count: number;
 }
 
 export const useChatList = () => {
