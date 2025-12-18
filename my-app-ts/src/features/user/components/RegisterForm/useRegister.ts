@@ -42,7 +42,7 @@ export const useRegister = () => {
 
       const data = await response.json();
       alert(`登録成功！ ID: ${data.id}`);
-      setName('');
+      window.location.href = '/dashboard';
       
     } catch (err: any) {
       console.error(err);
