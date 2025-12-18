@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useSearchParams } from 'react-router-dom';
 import { getAuth } from 'firebase/auth';
 
 export interface Message {
@@ -8,10 +8,15 @@ export interface Message {
   receiver_id: string;
   content: string;
   created_at: string;
+  product_id?: string;   
+  product_name?: string;
 }
 
 export const useChat = () => {
-  const { userId } = useParams<{ userId: string }>(); // URLから相手のIDを取得
+  const { userId } = useParams<{ userId: string }>(); 
+  const [searchParams] = useSearchParams();
+  const productId = searchParams.get('productId');
+
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputText, setInputText] = useState('');
   const [loading, setLoading] = useState(true);
@@ -56,7 +61,8 @@ export const useChat = () => {
         },
         body: JSON.stringify({
           receiver_id: userId,
-          content: inputText
+          content: inputText,
+          product_id: productId || null
         })
       });
 

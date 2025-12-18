@@ -52,13 +52,13 @@ export const ProductDetailPage = () => {
 
   const handleChat = () => {
     if (!product) return;
-    navigate(`/chat/${product.user_id}`);
+    navigate(`/chat/${product.user_id}?productId=${product.id}`);
   };
 
   return (
     <div style={{ maxWidth: '800px', margin: '0 auto', padding: '20px' }}>
       <Link to="/" style={{ display: 'inline-block', marginBottom: '20px', color: '#666', textDecoration: 'none' }}>
-        &lt; ダッシュボードに戻る
+        &lt; ホームに戻る
       </Link>
 
       <div style={{ backgroundColor: '#fff', padding: '30px', borderRadius: '8px', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
