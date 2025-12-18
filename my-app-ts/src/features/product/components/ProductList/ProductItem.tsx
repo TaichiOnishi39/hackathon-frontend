@@ -42,7 +42,7 @@ export const ProductItem = ({ product, currentUserId }: Props) => {
         const user = auth.currentUser;
         const token = user ? await user.getIdToken() : '';
 
-        const response = await fetch(`https://hackathon-backend-80731441408.europe-west1.run.app/products/like?id=${product.id}`, {
+        const response = await fetch(`https://hackathon-backend-80731441408.europe-west1.run.app/products/${product.id}/like`, {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${token}`
