@@ -6,7 +6,6 @@ import { Button } from '../../components/ui/Button';
 
 // コンポーネント
 import { UserProfile } from '../../features/user/components/UserProfile';
-import { ProductRegisterForm } from '../../features/product/components/ProductRegisterForm';
 import { ProductItem } from '../../features/product/components/ProductList/ProductItem';
 import { useUserProfile } from '../../features/user/components/UserProfile/useUserProfile';
 import { useMyPage } from './useMyPage';
@@ -56,9 +55,6 @@ export const MyPage = () => {
           {/* 左カラム: プロフィール・出品 */}
           <div style={{ flex: 1, minWidth: '300px' }}>
             <UserProfile />
-            <div style={{ marginTop: '20px' }}>
-              <ProductRegisterForm />
-            </div>
           </div>
 
           {/* 右カラム: 履歴タブ */}

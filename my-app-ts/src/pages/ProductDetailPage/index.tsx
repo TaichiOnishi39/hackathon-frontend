@@ -123,8 +123,13 @@ export const ProductDetailPage = () => {
                 </div>
 
                 <p style={{ fontSize: '14px', color: '#666', marginBottom: '20px' }}>
-                  出品者: {product.user_name} / {new Date(product.created_at).toLocaleString()}
-                </p>
+                出品者: 
+                {/* ★リンクに変更 */}
+                <Link to={`/users/${product.user_id}`} style={{ color: '#007bff', textDecoration: 'none', fontWeight: 'bold', marginLeft: '5px' }}>
+                  {product.user_name}
+                </Link>
+                 / {new Date(product.created_at).toLocaleString()}
+              </p>
                 
                 <p style={{ fontSize: '32px', fontWeight: 'bold', color: '#e91e63', margin: '0 0 30px 0' }}>
                   ¥{product.price.toLocaleString()}
