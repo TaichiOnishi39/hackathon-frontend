@@ -11,7 +11,9 @@ export const ProductRegisterForm = () => {
     imageFile, setImageFile, // ★追加
     registerProduct,
     loading,
-    error
+    error,
+    generateDescription, 
+    aiLoading
   } = useProductRegister();
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -47,7 +49,7 @@ export const ProductRegisterForm = () => {
         required
       />
 
-      {/* ★追加: 画像選択フォーム */}
+      {/* 画像選択フォーム */}
       <div style={{ marginBottom: '15px' }}>
         <label style={{ display: 'block', fontSize: '12px', marginBottom: '5px' }}>商品画像</label>
         <input 
@@ -57,14 +59,38 @@ export const ProductRegisterForm = () => {
           style={{ fontSize: '14px' }}
           required
         />
-        {/* 選択中のファイル名を表示したければここに imageFile?.name */}
       </div>
 
       <div style={{ marginBottom: '10px' }}>
-        <label style={{ display: 'block', fontSize: '12px' }}>商品説明</label>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '5px' }}>
+          <label style={{ fontSize: '12px' }}>商品説明</label>
+          
+          {/* AI自動生成ボタン */}
+          <button
+            type="button" // submitしないように注意
+            onClick={generateDescription}
+            disabled={aiLoading || !name}
+            style={{
+              fontSize: '11px',
+              padding: '4px 8px',
+              backgroundColor: '#673ab7', // 紫色でAIっぽく
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: (aiLoading || !name) ? 'not-allowed' : 'pointer',
+              opacity: (aiLoading || !name) ? 0.6 : 1,
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px'
+            }}
+          >
+            {aiLoading ? '生成中...' : '✨ AIで文章を作る'}
+          </button>
+        </div>
+        
         <textarea
           style={{ padding: '8px', width: '100%', boxSizing: 'border-box', minHeight: '80px' }}
-          placeholder="商品の詳細を入力してください"
+          placeholder="商品の詳細を入力してください（AI生成ボタンを押すと自動で書きます！）"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
         />

@@ -5,11 +5,56 @@ export const useProductRegister = () => {
   const [name, setName] = useState('');
   const [price, setPrice] = useState('');
   const [description, setDescription] = useState('');
-  // ★追加: 画像ファイル用のstate
   const [imageFile, setImageFile] = useState<File | null>(null);
   
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  const [aiLoading, setAiLoading] = useState(false);
+
+  // AI生成関数
+  const generateDescription = async () => {
+    if (!name.trim()) {
+      alert("先に「商品名」を入力してください！");
+      return;
+    }
+  // 簡易的にキーワードを聞く
+  const keywords = window.prompt("商品の特徴を入力してください（例: 新品, 限定カラー, 箱あり）", "新品, 美品");
+  if (keywords === null) return; // キャンセルされたら何もしない
+
+  setAiLoading(true);
+  try {
+    const auth = getAuth();
+    const user = auth.currentUser;
+    if (!user) return;
+    const token = await user.getIdToken();
+
+    const res = await fetch('https://hackathon-backend-80731441408.europe-west1.run.app/products/generate-description', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({ 
+        name: name, 
+        keywords: keywords 
+      }),
+    });
+
+    if (!res.ok) throw new Error('AI生成に失敗しました');
+
+    const data = await res.json();
+    
+    // 生成された文章をセット（既存の文章があれば改行して追記、なければそのまま）
+    setDescription(prev => prev ? prev + "\n\n" + data.description : data.description);
+    
+  } catch (e: any) {
+    console.error(e);
+    alert(e.message);
+  } finally {
+    setAiLoading(false);
+  }
+};
 
   const registerProduct = async () => {
     setError('');
@@ -84,9 +129,11 @@ export const useProductRegister = () => {
     name, setName,
     price, setPrice,
     description, setDescription,
-    imageFile, setImageFile, // ★追加して返す
+    imageFile, setImageFile, 
     registerProduct,
     loading,
-    error
+    error,
+    generateDescription, 
+    aiLoading
   };
 };
