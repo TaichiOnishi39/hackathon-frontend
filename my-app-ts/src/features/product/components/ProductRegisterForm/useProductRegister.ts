@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { getAuth } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
 
@@ -7,6 +7,7 @@ export const useProductRegister = () => {
   const [price, setPrice] = useState('');
   const [description, setDescription] = useState('');
   const [imageFile, setImageFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string>('');
   
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -16,6 +17,19 @@ export const useProductRegister = () => {
   const [showAiInput, setShowAiInput] = useState(false);
 
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!imageFile) {
+      setPreviewUrl('');
+      return;
+    }
+
+    const objectUrl = URL.createObjectURL(imageFile);
+    setPreviewUrl(objectUrl);
+
+    // クリーンアップ関数: コンポーネントのアンマウント時や画像変更時にメモリを開放
+    return () => URL.revokeObjectURL(objectUrl);
+  }, [imageFile]);
 
   // AI生成関数
   const generateDescription = async () => {
@@ -181,6 +195,7 @@ export const useProductRegister = () => {
     price, setPrice,
     description, setDescription,
     imageFile, setImageFile, 
+    previewUrl,
     registerProduct,
     loading,
     error,
