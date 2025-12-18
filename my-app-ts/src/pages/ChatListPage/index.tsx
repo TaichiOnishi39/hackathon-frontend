@@ -32,8 +32,33 @@ export const ChatListPage = () => {
                 <div style={{ flex: 1 }}>
                   <div style={{ fontWeight: 'bold', fontSize: '16px', marginBottom: '4px' }}>
                     {chat.partner_name}
+                    {/* ★未読バッジの表示 */}
+                    {chat.unread_count > 0 && (
+                      <span style={{
+                        backgroundColor: '#ff3b30',
+                        color: 'white',
+                        borderRadius: '50%',
+                        padding: '2px 6px',
+                        fontSize: '11px',
+                        minWidth: '18px',
+                        textAlign: 'center',
+                        fontWeight: 'bold',
+                        display: 'inline-block'
+                      }}>
+                        {chat.unread_count > 99 ? '99+' : chat.unread_count}
+                      </span>
+                    )}
                   </div>
-                  <div style={{ fontSize: '14px', color: '#666', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '250px' }}>
+
+                  <div style={{ 
+                    fontSize: '14px', 
+                    color: chat.unread_count > 0 ? '#333' : '#666', // 未読なら文字色を濃くする
+                    fontWeight: chat.unread_count > 0 ? 'bold' : 'normal', // 未読なら太字にする
+                    whiteSpace: 'nowrap', 
+                    overflow: 'hidden', 
+                    textOverflow: 'ellipsis', 
+                    maxWidth: '250px' 
+                  }}>
                     {chat.last_message}
                   </div>
                 </div>
