@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { auth } from './firebase';
 import { useUserProfile } from './features/user/components/UserProfile/useUserProfile';
+import { MainLayout } from './components/layout/MainLayout';
 
 // Pages
 import { LoginPage } from './pages/LoginPage';
@@ -14,6 +15,7 @@ import { ChatListPage } from './pages/ChatListPage';
 import { MyPage } from './pages/MyPage';
 import { UserPage } from './pages/UserPage';
 import { ProductRegisterPage } from './pages/ProductRegisterPage';
+import { ProductEditPage } from './pages/ProductEditPage';
 
 // ★新しいガード: プロフィール登録済みかチェックする
 const ProfileGuard = () => {
@@ -58,6 +60,7 @@ const App = () => {
 
             {/* 2. プロフィール登録済みでないと入れないルート群 (ProfileGuardで囲む) */}
             <Route element={<ProfileGuard />}>
+            <Route element={<MainLayout />}>
               <Route path="/" element={<Navigate to="/dashboard" />} />
               <Route path="/dashboard" element={<DashboardPage />} />
               <Route path="/mypage" element={<MyPage />} />
@@ -66,6 +69,8 @@ const App = () => {
               <Route path="/chat/:userId" element={<ChatPage />} />
               <Route path="/messages" element={<ChatListPage />} />
               <Route path="/users/:userId" element={<UserPage />} />
+              <Route path="/products/:id/edit" element={<ProductEditPage />} />
+            </Route>
             </Route>
           </>
         ) : (

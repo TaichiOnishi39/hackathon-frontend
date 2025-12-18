@@ -12,6 +12,8 @@ export interface ProductDetail {
   image_url: string;
   buyer_id: string;
   created_at: string;
+  like_count: number;
+  is_liked: boolean;
 }
 
 export const useProductDetail = () => {

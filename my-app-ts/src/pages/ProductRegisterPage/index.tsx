@@ -6,7 +6,7 @@ export const ProductRegisterPage = () => {
   return (
     <div style={{ maxWidth: '600px', margin: '0 auto', padding: '20px' }}>
       <Link to="/" style={{ display: 'inline-block', marginBottom: '20px', color: '#666', textDecoration: 'none' }}>
-        &lt; ダッシュボードに戻る
+        &lt; ホームに戻る
       </Link>
       
       {/* フォームコンポーネントを配置 */}
