@@ -8,12 +8,15 @@ export const ProductRegisterForm = () => {
     name, setName,
     price, setPrice,
     description, setDescription,
-    imageFile, setImageFile, // ★追加
+    imageFile, setImageFile,
     registerProduct,
     loading,
     error,
-    generateDescription, 
-    aiLoading
+    generateDescription,
+    aiLoading,
+    // ★追加
+    keywords, setKeywords,
+    showAiInput, setShowAiInput
   } = useProductRegister();
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -21,10 +24,9 @@ export const ProductRegisterForm = () => {
     registerProduct();
   };
 
-  // ファイルが選択された時の処理
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      setImageFile(e.target.files[0]); // 1つ目のファイルをセット
+      setImageFile(e.target.files[0]);
     }
   };
 
@@ -49,12 +51,11 @@ export const ProductRegisterForm = () => {
         required
       />
 
-      {/* 画像選択フォーム */}
       <div style={{ marginBottom: '15px' }}>
         <label style={{ display: 'block', fontSize: '12px', marginBottom: '5px' }}>商品画像</label>
         <input 
           type="file" 
-          accept="image/*" // 画像のみ許可
+          accept="image/*"
           onChange={handleFileChange}
           style={{ fontSize: '14px' }}
           required
@@ -65,32 +66,71 @@ export const ProductRegisterForm = () => {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '5px' }}>
           <label style={{ fontSize: '12px' }}>商品説明</label>
           
-          {/* AI自動生成ボタン */}
+          {/* ★AIボタン: クリックで入力エリアを開閉 */}
           <button
-            type="button" // submitしないように注意
-            onClick={generateDescription}
-            disabled={aiLoading || !name}
+            type="button" 
+            onClick={() => setShowAiInput(!showAiInput)}
+            disabled={!name}
             style={{
               fontSize: '11px',
               padding: '4px 8px',
-              backgroundColor: '#673ab7', // 紫色でAIっぽく
+              backgroundColor: showAiInput ? '#666' : '#673ab7', // 開いてる時はグレー、閉じてる時は紫
               color: 'white',
               border: 'none',
               borderRadius: '4px',
-              cursor: (aiLoading || !name) ? 'not-allowed' : 'pointer',
-              opacity: (aiLoading || !name) ? 0.6 : 1,
-              display: 'flex',
-              alignItems: 'center',
-              gap: '4px'
+              cursor: !name ? 'not-allowed' : 'pointer',
+              opacity: !name ? 0.6 : 1,
+              display: 'flex', alignItems: 'center', gap: '4px'
             }}
           >
-            {aiLoading ? '生成中...' : '✨ AIで文章を作る'}
+            {showAiInput ? '閉じる' : '✨ AIで文章を作る'}
           </button>
         </div>
+
+        {/* ★AI入力エリア: showAiInput が true の時だけ表示 */}
+        {showAiInput && (
+          <div style={{ 
+            marginBottom: '10px', 
+            padding: '10px', 
+            backgroundColor: '#f3e5f5', // 薄い紫の背景
+            borderRadius: '4px',
+            border: '1px solid #d1c4e9'
+          }}>
+            <p style={{ fontSize: '12px', margin: '0 0 5px', color: '#4a148c' }}>
+              商品の特徴キーワードを入力してください
+            </p>
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <input
+                type="text"
+                placeholder="例: 新品, 箱あり, 限定カラー, 傷なし"
+                value={keywords}
+                onChange={(e) => setKeywords(e.target.value)}
+                style={{ flex: 1, padding: '6px', fontSize: '14px', borderRadius: '4px', border: '1px solid #ccc' }}
+              />
+              <button
+                type="button"
+                onClick={generateDescription}
+                disabled={aiLoading || !keywords.trim()}
+                style={{
+                  backgroundColor: '#673ab7',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '4px',
+                  padding: '6px 12px',
+                  fontSize: '12px',
+                  cursor: (aiLoading || !keywords.trim()) ? 'not-allowed' : 'pointer',
+                  opacity: (aiLoading || !keywords.trim()) ? 0.7 : 1
+                }}
+              >
+                {aiLoading ? '生成中...' : '生成する'}
+              </button>
+            </div>
+          </div>
+        )}
         
         <textarea
           style={{ padding: '8px', width: '100%', boxSizing: 'border-box', minHeight: '80px' }}
-          placeholder="商品の詳細を入力してください（AI生成ボタンを押すと自動で書きます！）"
+          placeholder="商品の詳細を入力してください"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
         />

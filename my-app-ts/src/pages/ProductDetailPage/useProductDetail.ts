@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 
-// 商品データの型（buyer_idを追加）
 export interface ProductDetail {
   id: string;
   name: string;
@@ -11,12 +10,12 @@ export interface ProductDetail {
   user_id: string;
   user_name: string;
   image_url: string;
-  buyer_id: string; // 売れていればIDが入る
+  buyer_id: string;
   created_at: string;
 }
 
 export const useProductDetail = () => {
-  const { id } = useParams<{ id: string }>(); // URLからIDを取得
+  const { id } = useParams<{ id: string }>();
   const [product, setProduct] = useState<ProductDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -54,9 +53,7 @@ export const useProductDetail = () => {
 
       const res = await fetch(`https://hackathon-backend-80731441408.europe-west1.run.app/products/${id}/purchase`, {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
+        headers: { 'Authorization': `Bearer ${token}` }
       });
 
       if (!res.ok) {
@@ -65,7 +62,6 @@ export const useProductDetail = () => {
       }
 
       alert("購入しました！🎉");
-      // 画面をリロードして「売り切れ」表示にする
       fetchProduct();
 
     } catch (err: any) {
@@ -74,7 +70,65 @@ export const useProductDetail = () => {
     }
   };
 
-  // いいね状態を取得
+  // 3. ★追加: 商品削除処理
+  const deleteProduct = async () => {
+    if (!id) return false;
+    if (!window.confirm("本当にこの商品を削除しますか？（取り消せません）")) return false;
+
+    try {
+      const auth = getAuth();
+      const user = auth.currentUser;
+      if (!user) return false;
+      const token = await user.getIdToken();
+
+      const res = await fetch(`https://hackathon-backend-80731441408.europe-west1.run.app/products?id=${id}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+
+      if (!res.ok) throw new Error("削除に失敗しました");
+      
+      alert("商品を削除しました");
+      return true; // 成功
+
+    } catch (err: any) {
+      alert(err.message);
+      return false;
+    }
+  };
+
+  // 4. ★追加: 商品更新処理
+  const updateProduct = async (name: string, description: string, price: number) => {
+    if (!id) return false;
+    try {
+      const auth = getAuth();
+      const user = auth.currentUser;
+      if (!user) return false;
+      const token = await user.getIdToken();
+
+      const res = await fetch(`https://hackathon-backend-80731441408.europe-west1.run.app/products?id=${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ name, description, price }),
+      });
+
+      if (!res.ok) throw new Error("更新に失敗しました");
+
+      // 成功したらローカルのstateも更新
+      setProduct(prev => prev ? { ...prev, name, description, price } : null);
+      alert("更新しました");
+      return true;
+
+    } catch (err: any) {
+      alert(err.message);
+      return false;
+    }
+  };
+
+  // いいね機能
   const fetchLikeStatus = async (user: any) => {
     if (!id || !user) return; 
     try {
@@ -91,7 +145,6 @@ export const useProductDetail = () => {
     }
   };
 
-  // いいね切り替え 
   const toggleLike = async () => {
     if (!id) return;
     try {
@@ -104,13 +157,13 @@ export const useProductDetail = () => {
       const token = await user.getIdToken();
 
       const res = await fetch(`https://hackathon-backend-80731441408.europe-west1.run.app/products/${id}/like`, {
-        method: 'POST', // 切り替えはPOST
+        method: 'POST',
         headers: { Authorization: `Bearer ${token}` }
       });
       
       if (res.ok) {
         const data = await res.json();
-        setIsLiked(data.liked); // サーバーから返ってきた新しい状態をセット
+        setIsLiked(data.liked);
       } else {
         alert("いいねの変更に失敗しました");
       }
@@ -121,19 +174,18 @@ export const useProductDetail = () => {
 
   useEffect(() => {
     fetchProduct();
-  
-  // ログイン状態を監視して、確定したら取得する
-  const auth = getAuth();
-  const unsubscribe = onAuthStateChanged(auth, (user) => {
-    if (user) {
-      fetchLikeStatus(user); // ユーザー情報を渡して実行
-    } else {
-      setIsLiked(false); // ログアウト状態ならfalse
-    }
-  });
+    const auth = getAuth();
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) fetchLikeStatus(user);
+      else setIsLiked(false);
+    });
+    return () => unsubscribe();
+  }, [id]);
 
-  return () => unsubscribe(); // クリーンアップ
- }, [id]);
-
-  return { product, loading, error, purchaseProduct, isLiked, toggleLike };
+  return { 
+    product, loading, error, 
+    purchaseProduct, 
+    isLiked, toggleLike,
+    deleteProduct, updateProduct // ★追加
+  };
 };

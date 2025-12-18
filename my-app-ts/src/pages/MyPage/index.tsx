@@ -6,7 +6,6 @@ import { Button } from '../../components/ui/Button';
 
 // コンポーネント
 import { UserProfile } from '../../features/user/components/UserProfile';
-import { RegisterForm } from '../../features/user/components/RegisterForm';
 import { ProductRegisterForm } from '../../features/product/components/ProductRegisterForm';
 import { ProductItem } from '../../features/product/components/ProductList/ProductItem';
 import { useUserProfile } from '../../features/user/components/UserProfile/useUserProfile';
@@ -14,9 +13,9 @@ import { useMyPage } from './useMyPage';
 
 export const MyPage = () => {
   const { userProfile } = useUserProfile();
-  const { sellingProducts, purchasedProducts, likedProducts, loading, deleteMyProduct, updateMyProduct } = useMyPage();
+  // deleteMyProduct, updateMyProduct は削除
+  const { sellingProducts, purchasedProducts, likedProducts, loading } = useMyPage();
 
-  // タブの状態 (timelineは削除)
   const [activeTab, setActiveTab] = useState<'selling' | 'purchased' | 'liked'>('selling');
 
   const handleLogout = async () => {
@@ -34,8 +33,7 @@ export const MyPage = () => {
             key={p.id}
             product={p}
             currentUserId={userProfile?.id || null}
-            onDelete={deleteMyProduct}
-            onUpdate={updateMyProduct}
+            // onUpdate, onDelete を削除
           />
         ))}
       </div>
