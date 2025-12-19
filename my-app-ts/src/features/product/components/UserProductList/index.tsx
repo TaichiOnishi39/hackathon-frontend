@@ -55,23 +55,97 @@ export const UserProductList = ({ userId, currentUserId }: Props) => {
           </div>
 
           {totalPages > 1 && (
-             <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', marginTop: '30px' }}>
-               <Button 
-                 onClick={() => handlePageChange(page - 1)} 
+             <div style={{
+               display: 'flex',
+               justifyContent: 'center',
+               alignItems: 'center',
+               gap: '20px',
+               marginTop: '40px',
+               paddingTop: '24px',
+               borderTop: '1px solid #f0f0f0'
+             }}>
+               <Button
+                 onClick={() => handlePageChange(page - 1)}
                  disabled={page <= 1}
-                 style={{ width: '80px', padding: '8px', fontSize: '12px', backgroundColor: page <= 1 ? '#ccc' : '#007bff' }}
+                 style={{
+                   width: 'auto',
+                   padding: '10px 20px', // 少し小さめに
+                   fontSize: '14px',
+                   fontWeight: 'bold',
+                   borderRadius: '24px',
+                   backgroundColor: page <= 1 ? '#f8f9fa' : '#fff',
+                   color: page <= 1 ? '#adb5bd' : '#007bff',
+                   border: `2px solid ${page <= 1 ? '#f8f9fa' : '#007bff'}`,
+                   cursor: page <= 1 ? 'not-allowed' : 'pointer',
+                   boxShadow: page <= 1 ? 'none' : '0 2px 8px rgba(0, 123, 255, 0.1)',
+                   transition: 'all 0.2s ease',
+                   display: 'flex',
+                   alignItems: 'center',
+                   gap: '6px'
+                 }}
+                 onMouseOver={(e) => {
+                    if (page > 1) {
+                      e.currentTarget.style.backgroundColor = '#007bff';
+                      e.currentTarget.style.color = '#fff';
+                    }
+                 }}
+                 onMouseOut={(e) => {
+                    if (page > 1) {
+                      e.currentTarget.style.backgroundColor = '#fff';
+                      e.currentTarget.style.color = '#007bff';
+                    }
+                 }}
                >
-                 前へ
+                 <span style={{ fontSize: '16px' }}>←</span> 前へ
                </Button>
-               <span style={{ display: 'flex', alignItems: 'center', fontSize: '14px' }}>
-                 {page} / {totalPages}
+
+               <span style={{
+                 display: 'flex',
+                 alignItems: 'center',
+                 fontWeight: 'bold',
+                 fontSize: '16px',
+                 color: '#495057',
+                 minWidth: '100px',
+                 justifyContent: 'center'
+               }}>
+                 <span style={{ color: '#212529' }}>{page}</span>
+                 <span style={{ margin: '0 10px', color: '#ced4da', fontWeight: 'normal' }}>/</span>
+                 <span style={{ color: '#868e96' }}>{totalPages}</span>
                </span>
-               <Button 
-                 onClick={() => handlePageChange(page + 1)} 
+
+               <Button
+                 onClick={() => handlePageChange(page + 1)}
                  disabled={page >= totalPages}
-                 style={{ width: '80px', padding: '8px', fontSize: '12px', backgroundColor: page >= totalPages ? '#ccc' : '#007bff' }}
+                 style={{
+                   width: 'auto',
+                   padding: '10px 20px',
+                   fontSize: '14px',
+                   fontWeight: 'bold',
+                   borderRadius: '24px',
+                   backgroundColor: page >= totalPages ? '#f8f9fa' : '#fff',
+                   color: page >= totalPages ? '#adb5bd' : '#007bff',
+                   border: `2px solid ${page >= totalPages ? '#f8f9fa' : '#007bff'}`,
+                   cursor: page >= totalPages ? 'not-allowed' : 'pointer',
+                   boxShadow: page >= totalPages ? 'none' : '0 2px 8px rgba(0, 123, 255, 0.1)',
+                   transition: 'all 0.2s ease',
+                   display: 'flex',
+                   alignItems: 'center',
+                   gap: '6px'
+                 }}
+                 onMouseOver={(e) => {
+                    if (page < totalPages) {
+                      e.currentTarget.style.backgroundColor = '#007bff';
+                      e.currentTarget.style.color = '#fff';
+                    }
+                 }}
+                 onMouseOut={(e) => {
+                    if (page < totalPages) {
+                      e.currentTarget.style.backgroundColor = '#fff';
+                      e.currentTarget.style.color = '#007bff';
+                    }
+                 }}
                >
-                 次へ
+                 次へ <span style={{ fontSize: '16px' }}>→</span>
                </Button>
              </div>
           )}
