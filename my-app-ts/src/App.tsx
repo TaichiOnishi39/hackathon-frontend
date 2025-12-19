@@ -4,6 +4,7 @@ import { onAuthStateChanged, User } from 'firebase/auth';
 import { auth } from './firebase';
 import { useUserProfile } from './features/user/components/UserProfile/useUserProfile';
 import { MainLayout } from './components/layout/MainLayout';
+import { SettingsProvider } from './contexts/SettingsContext';
 
 // Pages
 import { LoginPage } from './pages/LoginPage';
@@ -17,6 +18,7 @@ import { UserPage } from './pages/UserPage';
 import { ProductRegisterPage } from './pages/ProductRegisterPage';
 import { ProductEditPage } from './pages/ProductEditPage';
 import { ProfileEditPage } from './pages/ProfileEditPage';
+import { SettingsPage } from './pages/SettingsPage';
 
 // ★新しいガード: プロフィール登録済みかチェックする
 const ProfileGuard = () => {
@@ -48,6 +50,7 @@ const App = () => {
   if (loading) return <div style={{textAlign:'center', marginTop:'50px'}}>Loading Auth...</div>;
 
   return (
+    <SettingsProvider>
     <BrowserRouter>
       <Routes>
         {/* ▼ 未ログインならログイン画面へ */}
@@ -72,6 +75,7 @@ const App = () => {
               <Route path="/users/:userId" element={<UserPage />} />
               <Route path="/products/:id/edit" element={<ProductEditPage />} />
               <Route path="profile/edit" element={<ProfileEditPage />} />
+              <Route path="/settings" element={<SettingsPage />} />
             </Route>
             </Route>
           </>
@@ -81,6 +85,7 @@ const App = () => {
         )}
       </Routes>
     </BrowserRouter>
+    </SettingsProvider>
   );
 };
 

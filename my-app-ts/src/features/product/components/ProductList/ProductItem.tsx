@@ -9,9 +9,10 @@ type Props = {
   // ★追加: 親から渡される削除・更新関数を受け取る (任意)
   onDelete?: (id: string) => Promise<void>;
   onUpdate?: (id: string, name: string, description: string, price: number) => Promise<boolean>;
+  showDescription?: boolean;
 };
 
-export const ProductItem = ({ product, currentUserId, onDelete, onUpdate }: Props) => {
+export const ProductItem = ({ product, currentUserId, onDelete, onUpdate, showDescription =false }: Props) => {
   const [isLiked, setIsLiked] = useState(product.is_liked);
   const [likeCount, setLikeCount] = useState(product.like_count);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -96,6 +97,24 @@ export const ProductItem = ({ product, currentUserId, onDelete, onUpdate }: Prop
       <p style={{ color: '#e91e63', fontWeight: 'bold', fontSize: '20px', margin: '0 0 8px 0' }}>
         ¥{product.price.toLocaleString()}
       </p>
+
+      {showDescription && product.description && (
+        <div style={{ 
+          fontSize: '13px', 
+          color: '#666', 
+          marginBottom: '10px',
+          padding: '8px',
+          backgroundColor: '#f8f9fa',
+          borderRadius: '4px',
+          lineHeight: '1.4',
+          display: '-webkit-box',
+          WebkitLineClamp: 3,
+          WebkitBoxOrient: 'vertical',
+          overflow: 'hidden'
+        }}>
+          {product.description}
+        </div>
+      )}
 
       {isMyProduct && isSoldOut && (
         <div style={{ 

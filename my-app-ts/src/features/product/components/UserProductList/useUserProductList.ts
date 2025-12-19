@@ -59,5 +59,30 @@ export const useUserProductList = () => {
     }
   };
 
-  return { products, total, loading, error, fetchUserProducts };
+  const deleteProduct = async (productId: string) => {
+    if (!window.confirm("本当にこの商品を削除しますか？")) return;
+    try {
+      const auth = getAuth();
+      const user = auth.currentUser;
+      if (!user) return;
+      const token = await user.getIdToken();
+
+      const response = await fetch(`https://hackathon-backend-80731441408.europe-west1.run.app/products?id=${productId}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` },
+      });
+
+      if (!response.ok) throw new Error('削除に失敗しました');
+
+      // 削除成功したらリストから除外
+      setProducts(prev => prev.filter(p => p.id !== productId));
+      setTotal(prev => prev - 1);
+      alert("商品を削除しました");
+    } catch (err: any) {
+      console.error(err);
+      alert(err.message);
+    }
+  };
+
+  return { products, total, loading, error, fetchUserProducts, deleteProduct };
 };

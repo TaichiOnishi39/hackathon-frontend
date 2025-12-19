@@ -109,7 +109,7 @@ export const ProfileEditPage = () => {
         {/* 入力フォーム */}
         <div style={{ marginBottom: '20px' }}>
             <Input 
-                label="お名前 (必須)" 
+                label="ユーザーネーム (必須)" 
                 value={name} 
                 onChange={(e) => setName(e.target.value)} 
             />
