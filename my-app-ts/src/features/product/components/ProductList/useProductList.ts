@@ -18,11 +18,12 @@ export interface Product {
 
 export const useProductList = () => {
   const [products, setProducts] = useState<Product[]>([]);
+  const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
   // 商品取得
-  const fetchProducts = async (params?: { keyword?: string, sort?: string, status?: string }) => {
+  const fetchProducts = async (params?: { keyword?: string, sort?: string, status?: string, page?: number }) => {
     setLoading(true);
     try {
       const auth = getAuth();
@@ -38,6 +39,9 @@ export const useProductList = () => {
       if (params?.sort) url.searchParams.append('sort', params.sort);
       if (params?.status) url.searchParams.append('status', params.status);
 
+      const page = params?.page || 1;
+      url.searchParams.append('page', page.toString());
+
       const response = await fetch(url.toString(), {
         method: 'GET',
         headers: { 'Authorization': token ? `Bearer ${token}` : '' },
@@ -45,7 +49,8 @@ export const useProductList = () => {
 
       if (!response.ok) throw new Error('商品リストの取得に失敗しました');
       const data = await response.json();
-      setProducts(data || []);
+      setProducts(data.products || []);
+      setTotal(data.total || 0);
       
     } catch (err: any) {
       console.error(err);
@@ -137,6 +142,7 @@ export const useProductList = () => {
 
   return {
     products,
+    total,
     loading, 
     error, 
     reload: () => fetchProducts(),

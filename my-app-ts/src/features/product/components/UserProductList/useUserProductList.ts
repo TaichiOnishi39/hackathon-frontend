@@ -1,27 +1,15 @@
 import { useState } from 'react';
 import { getAuth } from 'firebase/auth';
-
-export interface Product {
-  id: string;
-  name: string;
-  price: number;
-  description: string;
-  user_id: string;
-  user_name: string;
-  image_url: string;
-  buyer_id: string;
-  created_at: string;
-  like_count: number;
-  is_liked: boolean;
-}
+import { Product } from '../ProductList/useProductList';
 
 export const useUserProductList = () => {
   const [products, setProducts] = useState<Product[]>([]);
+  const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
   // 引数で絞り込み条件を受け取るように変更
-  const fetchUserProducts = async (userId: string, params?: { keyword?: string, sort?: string, status?: string }) => {
+  const fetchUserProducts = async (userId: string, params?: { keyword?: string, sort?: string, status?: string, page?: number }) => {
     if (!userId) return;
     
     setLoading(true);
@@ -45,6 +33,9 @@ export const useUserProductList = () => {
         if (params.status) url.searchParams.append('status', params.status);
       }
 
+      const page = params?.page || 1;
+      url.searchParams.append('page', page.toString());
+
       const response = await fetch(url.toString(), {
         method: 'GET',
         headers: { 
@@ -57,7 +48,8 @@ export const useUserProductList = () => {
       }
 
       const data = await response.json();
-      setProducts(data || []);
+      setProducts(data.products || []);
+      setTotal(data.total || 0);
       
     } catch (err: any) {
       console.error(err);
@@ -67,5 +59,5 @@ export const useUserProductList = () => {
     }
   };
 
-  return { products, loading, error, fetchUserProducts };
+  return { products, total, loading, error, fetchUserProducts };
 };
