@@ -1,31 +1,47 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react'; // useState追加
 import { useUserProductList } from './useUserProductList';
-import { ProductItem } from '../ProductList/ProductItem';
+import { ProductItem } from '../ProductList/ProductItem'; // 共通のItemを使う
+import { ProductSearchBar } from '../ProductSearchBar';   // ★追加
 
 type Props = {
-  userId: string;          // 表示したいユーザーのID
-  currentUserId: string | null; // 閲覧している自分自身のID (「あなたの商品」タグ判定用)
+  userId: string;
+  currentUserId: string | null;
 };
 
 export const UserProductList = ({ userId, currentUserId }: Props) => {
-  const { products, loading, error } = useUserProductList(userId);
-
-  if (loading) return <p>読み込み中...</p>;
-  if (error) return <p style={{ color: 'red' }}>エラー: {error}</p>;
+  const { products, loading, fetchUserProducts } = useUserProductList();
   
-  if (products.length === 0) {
-    return <p>出品している商品はありません。</p>;
-  }
+  // 初期ロード & 検索実行
+  const handleSearch = (keyword: string, sort: string, status: string) => {
+    // ユーザーページではキーワード検索は不要なら無視してもOKですが、あると便利です
+    fetchUserProducts(userId, { keyword, sort, status });
+  };
+
+  // 初回ロード (デフォルト条件)
+  useEffect(() => {
+    fetchUserProducts(userId, { sort: 'newest', status: 'all' });
+  }, [userId]);
 
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '20px' }}>
-      {products.map((product) => (
-        <ProductItem
-          key={product.id}
-          product={product}
-          currentUserId={currentUserId}
-        />
-      ))}
+    <div>
+      {/* ★検索バーを追加 */}
+      <ProductSearchBar onSearch={handleSearch} />
+
+      {loading ? (
+        <p>読み込み中...</p>
+      ) : products.length === 0 ? (
+        <p>出品商品はありません。</p>
+      ) : (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '20px' }}>
+          {products.map(product => (
+            <ProductItem 
+              key={product.id} 
+              product={product} 
+              currentUserId={currentUserId} 
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 };

@@ -1,34 +1,36 @@
 import React, { useState } from 'react';
 import { Product } from './useProductList';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom'; // useNavigateを追加
 import { getAuth } from 'firebase/auth';
 
 type Props = {
   product: Product;
   currentUserId: string | null;
+  // ★追加: 親から渡される削除・更新関数を受け取る (任意)
+  onDelete?: (id: string) => Promise<void>;
+  onUpdate?: (id: string, name: string, description: string, price: number) => Promise<boolean>;
 };
 
-export const ProductItem = ({ product, currentUserId }: Props) => {
-  // ★ローカルstateで「見た目」を即座に更新する
+export const ProductItem = ({ product, currentUserId, onDelete, onUpdate }: Props) => {
   const [isLiked, setIsLiked] = useState(product.is_liked);
   const [likeCount, setLikeCount] = useState(product.like_count);
   const [isProcessing, setIsProcessing] = useState(false);
+  const navigate = useNavigate();
 
   const isMyProduct = currentUserId === product.user_id;
   const isSoldOut = !!product.buyer_id;
 
-  // ★いいねボタンを押した時の処理
+  // いいね処理
   const handleToggleLike = async (e: React.MouseEvent) => {
-    e.preventDefault(); // リンク遷移を防ぐ
+    e.preventDefault();
     e.stopPropagation();
 
     if (!currentUserId) {
         alert("ログインしてください");
         return;
     }
-    if (isProcessing) return; // 連打防止
+    if (isProcessing) return;
 
-    // 1. 先に見た目を変える（サクサク動くように見せる）
     const previousLiked = isLiked;
     const previousCount = likeCount;
     
@@ -37,7 +39,6 @@ export const ProductItem = ({ product, currentUserId }: Props) => {
     setIsProcessing(true);
 
     try {
-        // 2. サーバーに送信
         const auth = getAuth();
         const user = auth.currentUser;
         const token = user ? await user.getIdToken() : '';
@@ -54,13 +55,28 @@ export const ProductItem = ({ product, currentUserId }: Props) => {
         }
     } catch (err) {
         console.error(err);
-        // 失敗したら元に戻す
         setIsLiked(previousLiked);
         setLikeCount(previousCount);
         alert("いいねに失敗しました");
     } finally {
         setIsProcessing(false);
     }
+  };
+
+  // ★削除ボタン処理
+  const handleDelete = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (onDelete) {
+      onDelete(product.id);
+    }
+  };
+
+  // ★編集ボタン処理
+  const handleEdit = (e: React.MouseEvent) => {
+    e.preventDefault(); // 詳細ページへの遷移を防ぐ
+    e.stopPropagation();
+    navigate(`/products/${product.id}/edit`);
   };
 
   return (
@@ -88,7 +104,7 @@ export const ProductItem = ({ product, currentUserId }: Props) => {
         </span>
         
         <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-            {/* ★クリックできるいいねボタンに変更 */}
+            {/* いいねボタン */}
             <button 
                 onClick={handleToggleLike}
                 style={{
@@ -99,7 +115,7 @@ export const ProductItem = ({ product, currentUserId }: Props) => {
                     alignItems: 'center',
                     gap: '4px',
                     fontSize: '16px',
-                    color: isLiked ? '#e91e63' : '#aaa', // いいね済みならピンク
+                    color: isLiked ? '#e91e63' : '#aaa',
                     transition: 'transform 0.1s'
                 }}
                 onMouseDown={(e) => e.currentTarget.style.transform = 'scale(0.9)'}
@@ -109,8 +125,32 @@ export const ProductItem = ({ product, currentUserId }: Props) => {
                 <span>{likeCount}</span>
             </button>
 
+            {/* ★自分の商品の場合の操作ボタン */}
             {isMyProduct && (
-                <span style={{ backgroundColor: '#e9ecef', color: '#495057', padding: '2px 6px', borderRadius: '4px', fontSize: '10px', fontWeight: 'bold' }}>あなた</span>
+                <div style={{ display: 'flex', gap: '5px' }}>
+                    {/* 編集ボタン */}
+                    <button
+                        onClick={handleEdit}
+                        style={{
+                            backgroundColor: '#fff', border: '1px solid #007bff', color: '#007bff',
+                            borderRadius: '4px', cursor: 'pointer', padding: '2px 8px', fontSize: '12px'
+                        }}
+                    >
+                        編集
+                    </button>
+                    {/* 削除ボタン */}
+                    {onDelete && (
+                        <button
+                            onClick={handleDelete}
+                            style={{
+                                backgroundColor: '#fff', border: '1px solid #dc3545', color: '#dc3545',
+                                borderRadius: '4px', cursor: 'pointer', padding: '2px 8px', fontSize: '12px'
+                            }}
+                        >
+                            削除
+                        </button>
+                    )}
+                </div>
             )}
         </div>
       </div>
