@@ -11,6 +11,7 @@ export interface Product {
   user_name: string;
   image_url: string;
   buyer_id: string;
+  buyer_name: string;
   created_at: string;
   like_count: number;
   is_liked: boolean;

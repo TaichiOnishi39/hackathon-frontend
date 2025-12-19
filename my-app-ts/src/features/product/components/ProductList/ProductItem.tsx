@@ -97,6 +97,20 @@ export const ProductItem = ({ product, currentUserId, onDelete, onUpdate }: Prop
         ¥{product.price.toLocaleString()}
       </p>
 
+      {isMyProduct && isSoldOut && (
+        <div style={{ 
+            backgroundColor: '#d4edda', 
+            color: '#155724', 
+            padding: '8px', 
+            borderRadius: '4px', 
+            fontSize: '13px', 
+            marginBottom: '10px',
+            border: '1px solid #c3e6cb'
+        }}>
+          <strong>🎉 購入者:</strong> {product.buyer_name} さん
+        </div>
+      )}
+
       <div style={{ borderTop: '1px solid #eee', paddingTop: '8px', fontSize: '12px', color: '#999', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <span>
           出品者: <Link to={`/users/${product.user_id}`} style={{ color: '#007bff', textDecoration: 'none' }}>{product.user_name}</Link><br />
