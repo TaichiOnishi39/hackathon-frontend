@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useProductDetail } from '../ProductDetailPage/useProductDetail';
-import { useUserProfile } from '../../features/user/components/UserProfile/useUserProfile'; // ★追加
+import { useUserProfile } from '../../features/user/components/UserProfile/useUserProfile';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 
 export const ProductEditPage = () => {
   const { product, loading: productLoading, error, updateProduct, deleteProduct } = useProductDetail();
-  const { userProfile, loading: userLoading } = useUserProfile(); // ★ユーザー情報を取得
+  const { userProfile, loading: userLoading } = useUserProfile();
   const navigate = useNavigate();
   const { id } = useParams();
 
@@ -18,19 +18,17 @@ export const ProductEditPage = () => {
 
   // データ読み込みと権限チェック
   useEffect(() => {
-    // 両方のデータ読み込みが終わるまで待機
     if (productLoading || userLoading) return;
 
     if (product) {
-      // 権限チェック: プロフィールが無い、またはIDが一致しない場合
-      // ★修正: userProfile.id (DBのID) と product.user_id を比較
+      // 権限チェック: userProfile.id と product.user_id を比較
       if (!userProfile || userProfile.id !== product.user_id) {
         alert("編集権限がありません");
-        navigate(`/products/${id}`); // 詳細ページへ戻す
+        navigate(`/products/${id}`);
         return;
       }
 
-      // 権限OKなら初期値をセット (初回のみ)
+      // 初期値をセット (初回のみ)
       if (name === '') {
           setName(product.name);
           setPrice(String(product.price));
@@ -43,7 +41,6 @@ export const ProductEditPage = () => {
     if (!product) return;
     const success = await updateProduct(name, description, Number(price));
     if (success) {
-      // updateProduct内でalertが出るのでここでは省略可
       navigate(`/products/${product.id}`);
     }
   };
@@ -57,41 +54,43 @@ export const ProductEditPage = () => {
     }
   };
 
-  // ロード中は待機表示
-  if (productLoading || userLoading) return <div style={{ padding: '20px' }}>読み込み中...</div>;
+  if (productLoading || userLoading) return <div style={{ padding: '20px', textAlign: 'center', color: '#666' }}>読み込み中...</div>;
   if (error) return <div style={{ padding: '20px', color: 'red' }}>エラー: {error}</div>;
   if (!product) return null;
 
   return (
-    <div style={{ maxWidth: '600px', margin: '0 auto', padding: '20px' }}>
-      <Link to={`/products/${id}`} style={{ display: 'inline-block', marginBottom: '20px', color: '#666', textDecoration: 'none' }}>
+    <div style={{ maxWidth: '600px', margin: '0 auto', padding: '40px 20px', paddingBottom: '80px' }}>
+      <Link to={`/products/${id}`} style={{ display: 'inline-block', marginBottom: '20px', color: '#666', textDecoration: 'none', fontWeight: '500' }}>
         &lt; キャンセルして戻る
       </Link>
 
-      <div style={{ backgroundColor: '#fff', padding: '30px', borderRadius: '8px', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
-        <h1 style={{ fontSize: '24px', marginBottom: '20px' }}>商品情報の編集</h1>
+      <div style={{ backgroundColor: '#fff', padding: '40px', borderRadius: '16px', boxShadow: '0 4px 20px rgba(0,0,0,0.05)' }}>
+        <h1 style={{ fontSize: '24px', marginBottom: '30px', textAlign: 'center', color: '#333' }}>商品情報の編集</h1>
 
-        <div style={{ marginBottom: '20px' }}>
-          <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>商品名</label>
+        <div style={{ marginBottom: '24px' }}>
+          <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', color: '#444' }}>商品名</label>
           <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="商品名" />
         </div>
 
-        <div style={{ marginBottom: '20px' }}>
-          <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>価格 (¥)</label>
+        <div style={{ marginBottom: '24px' }}>
+          <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', color: '#444' }}>価格 (¥)</label>
           <Input type="number" value={price} onChange={(e) => setPrice(e.target.value)} placeholder="価格" />
         </div>
 
-        <div style={{ marginBottom: '30px' }}>
-          <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>商品説明</label>
+        <div style={{ marginBottom: '40px' }}>
+          <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', color: '#444' }}>商品説明</label>
           <textarea
             style={{ 
               width: '100%', 
-              padding: '10px', 
+              padding: '12px', 
               boxSizing: 'border-box', 
               minHeight: '150px',
-              borderRadius: '4px',
+              borderRadius: '8px',
               border: '1px solid #ddd',
-              fontSize: '16px'
+              fontSize: '16px',
+              lineHeight: '1.6',
+              resize: 'vertical',
+              fontFamily: 'inherit'
             }}
             value={description}
             onChange={(e) => setDescription(e.target.value)}
@@ -99,15 +98,56 @@ export const ProductEditPage = () => {
           />
         </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-          <Button onClick={handleSave} style={{ width: '100%', padding: '15px', fontSize: '18px', backgroundColor: '#28a745' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+          {/* 保存ボタン (メイン) */}
+          <Button 
+            onClick={handleSave} 
+            style={{ 
+              width: '100%', 
+              padding: '14px', 
+              fontSize: '16px', 
+              backgroundColor: '#007bff', // 統一感のある青
+              borderRadius: '30px', 
+              fontWeight: 'bold',
+              boxShadow: '0 4px 12px rgba(0, 123, 255, 0.3)',
+              transition: 'all 0.2s'
+            }}
+            onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
+            onMouseOut={(e) => e.currentTarget.style.transform = 'translateY(0)'}
+          >
             変更を保存する
           </Button>
           
           <div style={{ borderTop: '1px solid #eee', margin: '10px 0' }}></div>
 
-          <Button onClick={handleDelete} style={{ width: '100%', padding: '15px', fontSize: '16px', backgroundColor: '#dc3545' }}>
-            この商品を削除する 🗑️
+          {/* 削除ボタン (サブ/危険) */}
+          <Button 
+            onClick={handleDelete} 
+            style={{ 
+              width: '100%', 
+              padding: '14px', 
+              fontSize: '16px', 
+              backgroundColor: '#fff', 
+              color: '#dc3545',
+              border: '2px solid #dc3545', // アウトラインスタイル
+              borderRadius: '30px',
+              fontWeight: 'bold',
+              transition: 'all 0.2s',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '8px'
+            }}
+            onMouseOver={(e) => {
+                e.currentTarget.style.backgroundColor = '#dc3545';
+                e.currentTarget.style.color = '#fff';
+            }}
+            onMouseOut={(e) => {
+                e.currentTarget.style.backgroundColor = '#fff';
+                e.currentTarget.style.color = '#dc3545';
+            }}
+          >
+            この商品を削除する <span style={{fontSize:'18px'}}>🗑️</span>
           </Button>
         </div>
       </div>
