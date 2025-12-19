@@ -22,7 +22,7 @@ export const useProductList = () => {
   const [error, setError] = useState('');
 
   // 商品取得
-  const fetchProducts = async (keyword?: string) => {
+  const fetchProducts = async (params?: { keyword?: string, sort?: string, status?: string }) => {
     setLoading(true);
     try {
       const auth = getAuth();
@@ -32,9 +32,11 @@ export const useProductList = () => {
 
       // ★ URLオブジェクトを使ってクエリパラメータを組み立てる
       const url = new URL('https://hackathon-backend-80731441408.europe-west1.run.app/products');
-      if (keyword) {
-        url.searchParams.append('q', keyword); // ?q=xxx を追加
+      if (params?.keyword) {
+        url.searchParams.append('q', params.keyword); // ?q=xxx を追加
       }
+      if (params?.sort) url.searchParams.append('sort', params.sort);
+      if (params?.status) url.searchParams.append('status', params.status);
 
       const response = await fetch(url.toString(), {
         method: 'GET',
@@ -137,7 +139,7 @@ export const useProductList = () => {
     products,
     loading, 
     error, 
-    reload: fetchProducts,
+    reload: () => fetchProducts(),
     deleteProduct,
     updateProduct,
     searchProducts: fetchProducts
