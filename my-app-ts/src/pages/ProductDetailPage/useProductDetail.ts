@@ -9,8 +9,11 @@ export interface ProductDetail {
   description: string;
   user_id: string;
   user_name: string;
+  user_image_url: string;
   image_url: string;
   buyer_id: string;
+  buyer_name: string;
+  buyer_image_url: string;
   created_at: string;
   like_count: number;
   is_liked: boolean;

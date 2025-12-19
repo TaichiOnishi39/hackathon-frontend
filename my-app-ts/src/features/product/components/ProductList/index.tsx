@@ -3,6 +3,7 @@ import { useProductList } from './useProductList';
 import { ProductItem } from './ProductItem';
 import { ProductSearchBar } from '../ProductSearchBar';
 import { Button } from '../../../../components/ui/Button';
+import { useSettings } from '../../../../contexts/SettingsContext';
 
 type Props = {
   currentUserId: string | null;
@@ -11,6 +12,8 @@ type Props = {
 export const ProductList = ({ currentUserId }: Props) => {
   // total を受け取る
   const { products, total, loading, error, searchProducts, deleteProduct, updateProduct } = useProductList();
+
+  const { settings } = useSettings();
   
   // 現在の検索条件を保持
   const [conditions, setConditions] = useState({ keyword: '', sort: 'newest', status: 'all' });
@@ -58,6 +61,7 @@ export const ProductList = ({ currentUserId }: Props) => {
                 currentUserId={currentUserId}
                 onDelete={deleteProduct}
                 onUpdate={updateProduct}
+                showDescription={settings.showDescription}
               />
             ))}
           </div>

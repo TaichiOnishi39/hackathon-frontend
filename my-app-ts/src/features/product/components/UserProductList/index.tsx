@@ -3,17 +3,27 @@ import { useUserProductList } from './useUserProductList';
 import { ProductItem } from '../ProductList/ProductItem';
 import { ProductSearchBar } from '../ProductSearchBar';
 import { Button } from '../../../../components/ui/Button';
+import { useSettings } from '../../../../contexts/SettingsContext';
 
 type Props = {
   userId: string;
   currentUserId: string | null;
+  onTotalChange?: (total: number) => void;
 };
 
-export const UserProductList = ({ userId, currentUserId }: Props) => {
-  const { products, total, loading, fetchUserProducts } = useUserProductList();
+export const UserProductList = ({ userId, currentUserId, onTotalChange }: Props) => {
+  const { products, total, loading, fetchUserProducts, deleteProduct } = useUserProductList();
+
+  const { settings } = useSettings();
   
   const [conditions, setConditions] = useState({ keyword: '', sort: 'newest', status: 'all' });
   const [page, setPage] = useState(1);
+
+  useEffect(() => {
+    if (onTotalChange) {
+      onTotalChange(total);
+    }
+  }, [total, onTotalChange]);
 
   const handleSearch = (keyword: string, sort: string, status: string) => {
     setConditions({ keyword, sort, status });
@@ -50,6 +60,8 @@ export const UserProductList = ({ userId, currentUserId }: Props) => {
                 key={product.id} 
                 product={product} 
                 currentUserId={currentUserId} 
+                showDescription={settings.showDescription}
+                onDelete={deleteProduct}
               />
             ))}
           </div>
