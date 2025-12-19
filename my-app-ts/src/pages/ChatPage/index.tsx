@@ -104,12 +104,8 @@ export const ChatPage = () => {
             <div key={msg.id} style={{ display: 'flex', justifyContent: isMe ? 'flex-end' : 'flex-start', marginBottom: '10px' }}>
               
               {!isMe && (
-                  <div style={{ 
-                      width: '32px', height: '32px', borderRadius: '50%', backgroundColor: '#ddd', marginRight: '8px',
-                      display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', color: '#666'
-                  }}>
-                      {/* 名前があれば頭文字、なければ '?' */}
-                      {partner ? partner.name.charAt(0) : '?'}
+                  <div style={{ marginRight: '8px', alignSelf: 'flex-end' }}>
+                      {renderPartnerIcon(32)}
                   </div>
               )}
 
