@@ -17,8 +17,8 @@ export const RegisterForm = () => {
       <h3>ユーザー登録</h3>
       
       <Input 
-        label="お名前"
-        placeholder="例: 山田 太郎（50文字以内)"
+        label="ユーザーネーム"
+        placeholder="(50文字以内)"
         value={name}
         onChange={(e) => setName(e.target.value)}
         maxLength={50}
