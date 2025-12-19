@@ -62,25 +62,106 @@ export const ProductList = ({ currentUserId }: Props) => {
             ))}
           </div>
           
-          {/* ページネーションボタン */}
+          {/* ページネーションボタン (デザイン変更) */}
           {totalPages > 1 && (
-             <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', marginTop: '40px' }}>
-               <Button 
-                 onClick={() => handlePageChange(page - 1)} 
+             <div style={{
+               display: 'flex',
+               justifyContent: 'center',
+               alignItems: 'center',
+               gap: '24px', // 間隔を広げる
+               marginTop: '50px', // 上の余白を広げる
+               padding: '24px 0', // 上下のパディングを追加
+               borderTop: '1px solid #eee' // 区切り線を追加してエリアを明確に
+             }}>
+               <Button
+                 onClick={() => handlePageChange(page - 1)}
                  disabled={page <= 1}
-                 style={{ width: '100px', backgroundColor: page <= 1 ? '#ccc' : '#007bff' }}
+                 style={{
+                   width: 'auto', // 幅を自動調整
+                   padding: '12px 24px', // 大きくする
+                   fontSize: '16px',
+                   fontWeight: 'bold',
+                   borderRadius: '30px', // 丸くする
+                   // 無効時は薄いグレー、通常は白背景に青枠
+                   backgroundColor: page <= 1 ? '#f1f3f5' : '#fff',
+                   color: page <= 1 ? '#adb5bd' : '#007bff',
+                   border: `2px solid ${page <= 1 ? '#f1f3f5' : '#007bff'}`,
+                   cursor: page <= 1 ? 'not-allowed' : 'pointer',
+                   boxShadow: page <= 1 ? 'none' : '0 4px 12px rgba(0, 123, 255, 0.15)', // 影をつけて浮かせる
+                   transition: 'all 0.3s ease', // 滑らかな変化
+                   display: 'flex',
+                   alignItems: 'center',
+                   gap: '8px'
+                 }}
+                 // ホバーエフェクト (マウスが乗った時だけ青く塗りつぶす)
+                 onMouseOver={(e) => {
+                    if (page > 1) {
+                      e.currentTarget.style.backgroundColor = '#007bff';
+                      e.currentTarget.style.color = '#fff';
+                      e.currentTarget.style.transform = 'translateY(-2px)'; // 少し浮き上がる
+                    }
+                 }}
+                 onMouseOut={(e) => {
+                    if (page > 1) {
+                      e.currentTarget.style.backgroundColor = '#fff';
+                      e.currentTarget.style.color = '#007bff';
+                      e.currentTarget.style.transform = 'translateY(0)';
+                    }
+                 }}
                >
-                 前へ
+                 <span style={{ fontSize: '18px' }}>←</span> 前へ
                </Button>
-               <span style={{ display: 'flex', alignItems: 'center', fontWeight: 'bold' }}>
-                 {page} / {totalPages}
+
+               <span style={{
+                 display: 'flex',
+                 alignItems: 'center',
+                 fontWeight: 'bold',
+                 fontSize: '18px',
+                 color: '#495057',
+                 minWidth: '120px', // 幅を固定して中央揃えを安定させる
+                 justifyContent: 'center',
+                 letterSpacing: '1px'
+               }}>
+                 <span style={{ color: '#212529' }}>{page}</span>
+                 <span style={{ margin: '0 12px', color: '#ced4da', fontWeight: 'normal', fontSize: '24px' }}>/</span>
+                 <span style={{ color: '#868e96' }}>{totalPages}</span>
                </span>
-               <Button 
-                 onClick={() => handlePageChange(page + 1)} 
+
+               <Button
+                 onClick={() => handlePageChange(page + 1)}
                  disabled={page >= totalPages}
-                 style={{ width: '100px', backgroundColor: page >= totalPages ? '#ccc' : '#007bff' }}
+                 style={{
+                   width: 'auto',
+                   padding: '12px 24px',
+                   fontSize: '16px',
+                   fontWeight: 'bold',
+                   borderRadius: '30px',
+                   backgroundColor: page >= totalPages ? '#f1f3f5' : '#fff',
+                   color: page >= totalPages ? '#adb5bd' : '#007bff',
+                   border: `2px solid ${page >= totalPages ? '#f1f3f5' : '#007bff'}`,
+                   cursor: page >= totalPages ? 'not-allowed' : 'pointer',
+                   boxShadow: page >= totalPages ? 'none' : '0 4px 12px rgba(0, 123, 255, 0.15)',
+                   transition: 'all 0.3s ease',
+                   display: 'flex',
+                   alignItems: 'center',
+                   gap: '8px'
+                 }}
+                 onMouseOver={(e) => {
+                    if (page < totalPages) {
+                      e.currentTarget.style.backgroundColor = '#007bff';
+                      e.currentTarget.style.color = '#fff';
+                      e.currentTarget.style.transform = 'translateY(-2px)';
+                    }
+                 }}
+                 onMouseOut={(e) => {
+                    if (page < totalPages) {
+                      e.currentTarget.style.backgroundColor = '#fff';
+                      e.currentTarget.style.color = '#007bff';
+                      e.currentTarget.style.transform = 'translateY(0)';
+                    }
+                 }}
                >
-                 次へ
+                 次へ <span style={{ fontSize: '18px' }}>→</span>
                </Button>
              </div>
           )}
