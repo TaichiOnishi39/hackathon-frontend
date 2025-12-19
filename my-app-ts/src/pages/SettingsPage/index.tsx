@@ -60,17 +60,6 @@ export const SettingsPage = () => {
           </div>
         </div>
 
-        {/* 将来的な項目の例（ダミー） */}
-        <div style={{ padding: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', opacity: 0.5 }}>
-          <div>
-            <div style={{ fontWeight: 'bold', fontSize: '16px', marginBottom: '4px' }}>ダークモード</div>
-            <div style={{ fontSize: '12px', color: '#888' }}>準備中...</div>
-          </div>
-          <div style={{ width: '50px', height: '28px', backgroundColor: '#e9e9ea', borderRadius: '14px', position: 'relative' }}>
-            <div style={{ width: '24px', height: '24px', backgroundColor: '#fff', borderRadius: '50%', position: 'absolute', top: '2px', left: '2px' }} />
-          </div>
-        </div>
-
       </div>
     </div>
   );
