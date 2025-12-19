@@ -1,10 +1,5 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { signOut } from 'firebase/auth';
-import { auth } from '../../firebase';
-import { Button } from '../../components/ui/Button';
-
-// コンポーネント
 import { UserProfile } from '../../features/user/components/UserProfile';
 import { ProductItem } from '../../features/product/components/ProductList/ProductItem';
 import { useUserProfile } from '../../features/user/components/UserProfile/useUserProfile';
@@ -12,23 +7,38 @@ import { useMyPage } from './useMyPage';
 
 export const MyPage = () => {
   const { userProfile } = useUserProfile();
-  // deleteMyProduct, updateMyProduct は削除
   const { sellingProducts, purchasedProducts, likedProducts, loading } = useMyPage();
-
   const [activeTab, setActiveTab] = useState<'selling' | 'purchased' | 'liked'>('selling');
 
+  // 商品グリッド表示用関数
   const renderGrid = (products: any[]) => {
-    if (loading) return <p>読み込み中...</p>;
-    if (products.length === 0) return <p>商品はありません。</p>;
+    if (loading) return <div style={{ padding: '40px', textAlign: 'center', color: '#999' }}>読み込み中...</div>;
+    
+    if (products.length === 0) {
+      return (
+        <div style={{ 
+          padding: '60px 20px', 
+          textAlign: 'center', 
+          backgroundColor: '#f9f9f9', 
+          borderRadius: '8px', 
+          color: '#888' 
+        }}>
+          <p style={{ fontSize: '16px', marginBottom: '10px' }}>商品はまだありません 📦</p>
+        </div>
+      );
+    }
 
     return (
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '20px' }}>
+      <div style={{ 
+        display: 'grid', 
+        gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', 
+        gap: '20px' 
+      }}>
         {products.map((p) => (
           <ProductItem
             key={p.id}
             product={p}
             currentUserId={userProfile?.id || null}
-            // onUpdate, onDelete を削除
           />
         ))}
       </div>
@@ -36,56 +46,116 @@ export const MyPage = () => {
   };
 
   return (
-    <div style={{ maxWidth: '1000px', margin: '0 auto', padding: '20px' }}>
-      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-          <h2 style={{ margin: 0 }}>マイページ</h2>
-          <Link to="/" style={{ textDecoration: 'none', color: '#007bff' }}>&lt; ホームに戻る</Link>
-        </div>
+    <div style={{ maxWidth: '1000px', margin: '0 auto', padding: '20px 20px 60px' }}>
+      
+      {/* ヘッダーエリア */}
+      <header style={{ marginBottom: '30px' }}>
+        <Link to="/" style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', textDecoration: 'none', color: '#666', marginBottom: '10px', fontSize: '14px' }}>
+          <span>&lt;</span> ホームに戻る
+        </Link>
+        <h2 style={{ margin: 0, fontSize: '24px', fontWeight: 'bold' }}>マイページ</h2>
       </header>
 
-      <main>
-        <div style={{ display: 'flex', gap: '40px', flexWrap: 'wrap' }}>
+      <div style={{ display: 'flex', gap: '30px', flexWrap: 'wrap', alignItems: 'flex-start' }}>
+        
+        {/* 左カラム: プロフィール (スマホでは上に、PCでは左固定幅に) */}
+        <aside style={{ flex: '1 1 280px', maxWidth: '100%', position: 'sticky', top: '20px' }}>
+          <UserProfile />
+        </aside>
+
+        {/* 右カラム: 履歴タブと一覧 */}
+        <main style={{ flex: '999 1 300px', minWidth: '0' }}> {/* minWidth:0 はGridのはみ出し防止 */}
           
-          {/* 左カラム: プロフィール・出品 */}
-          <div style={{ flex: 1, minWidth: '300px' }}>
-            <UserProfile />
+          {/* タブメニュー */}
+          <div style={{ 
+            display: 'flex', 
+            borderBottom: '1px solid #eee', 
+            marginBottom: '24px',
+            backgroundColor: '#fff',
+            position: 'sticky', // スクロールしてもタブが見えるように
+            top: 0,
+            zIndex: 10
+          }}>
+            <TabButton 
+              label="出品した商品" 
+              count={sellingProducts.length} 
+              active={activeTab === 'selling'} 
+              onClick={() => setActiveTab('selling')} 
+            />
+            <TabButton 
+              label="購入した商品" 
+              count={purchasedProducts.length} 
+              active={activeTab === 'purchased'} 
+              onClick={() => setActiveTab('purchased')} 
+            />
+            <TabButton 
+              label="いいね" 
+              count={likedProducts.length} 
+              active={activeTab === 'liked'} 
+              onClick={() => setActiveTab('liked')} 
+            />
           </div>
 
-          {/* 右カラム: 履歴タブ */}
-          <div style={{ flex: 2, minWidth: '300px' }}>
-            <div style={{ display: 'flex', borderBottom: '1px solid #ddd', marginBottom: '20px' }}>
-              <TabButton label={`出品 (${sellingProducts.length})`} active={activeTab === 'selling'} onClick={() => setActiveTab('selling')} />
-              <TabButton label={`購入 (${purchasedProducts.length})`} active={activeTab === 'purchased'} onClick={() => setActiveTab('purchased')} />
-              <TabButton label={`いいね (${likedProducts.length})`} active={activeTab === 'liked'} onClick={() => setActiveTab('liked')} />
-            </div>
-
-            <div>
-              {activeTab === 'selling' && renderGrid(sellingProducts)}
-              {activeTab === 'purchased' && renderGrid(purchasedProducts)}
-              {activeTab === 'liked' && renderGrid(likedProducts)}
-            </div>
+          {/* コンテンツエリア */}
+          <div>
+            {activeTab === 'selling' && (
+               <div>
+                  <h3 style={{ fontSize: '18px', marginBottom: '16px', color: '#444' }}>出品中・売却済みの商品</h3>
+                  {renderGrid(sellingProducts)}
+               </div>
+            )}
+            {activeTab === 'purchased' && (
+                <div>
+                   <h3 style={{ fontSize: '18px', marginBottom: '16px', color: '#444' }}>購入履歴</h3>
+                   {renderGrid(purchasedProducts)}
+                </div>
+            )}
+            {activeTab === 'liked' && (
+                <div>
+                   <h3 style={{ fontSize: '18px', marginBottom: '16px', color: '#444' }}>いいねした商品</h3>
+                   {renderGrid(likedProducts)}
+                </div>
+            )}
           </div>
-        </div>
-      </main>
+        </main>
+      </div>
     </div>
   );
 };
 
-const TabButton = ({ label, active, onClick }: { label: string, active: boolean, onClick: () => void }) => (
+// タブボタンコンポーネント (件数バッジ付き)
+const TabButton = ({ label, count, active, onClick }: { label: string, count: number, active: boolean, onClick: () => void }) => (
   <button
     onClick={onClick}
     style={{
-      padding: '10px 20px',
+      padding: '12px 16px',
       cursor: 'pointer',
       border: 'none',
       backgroundColor: 'transparent',
-      borderBottom: active ? '3px solid #e91e63' : '3px solid transparent',
-      fontWeight: active ? 'bold' : 'normal',
-      color: active ? '#e91e63' : '#666',
-      fontSize: '16px'
+      borderBottom: active ? '3px solid #007bff' : '3px solid transparent',
+      fontWeight: active ? 'bold' : '500',
+      color: active ? '#007bff' : '#666',
+      fontSize: '15px',
+      display: 'flex',
+      alignItems: 'center',
+      gap: '6px',
+      transition: 'all 0.2s',
+      whiteSpace: 'nowrap'
     }}
   >
     {label}
+    {count > 0 && (
+      <span style={{ 
+        backgroundColor: active ? '#007bff' : '#eee', 
+        color: active ? '#fff' : '#666', 
+        fontSize: '11px', 
+        padding: '2px 6px', 
+        borderRadius: '10px',
+        minWidth: '16px',
+        textAlign: 'center'
+      }}>
+        {count}
+      </span>
+    )}
   </button>
 );

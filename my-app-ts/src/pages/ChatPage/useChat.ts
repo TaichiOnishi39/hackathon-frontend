@@ -15,6 +15,7 @@ export interface Message {
 export interface ChatUser {
     id: string;
     name: string;
+    image_url?: string;
 }
 
 export const useChat = () => {

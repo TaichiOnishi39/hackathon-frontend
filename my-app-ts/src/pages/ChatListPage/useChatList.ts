@@ -4,6 +4,7 @@ import { getAuth } from 'firebase/auth';
 export interface ChatSummary {
   partner_id: string;
   partner_name: string;
+  partner_image_url?: string;
   last_message: string;
   last_time: string;
   unread_count: number;
