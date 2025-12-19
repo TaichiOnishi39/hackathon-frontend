@@ -18,6 +18,42 @@ export const UserPage = () => {
 
   const isMe = me?.id === user.id;
 
+  const renderIcon = (size: number) => {
+    if (user.image_url) {
+      return (
+        <img 
+          src={user.image_url} 
+          alt={user.name} 
+          style={{ 
+            width: `${size}px`, 
+            height: `${size}px`, 
+            borderRadius: '50%', 
+            objectFit: 'cover', 
+            border: '1px solid #eee',
+            flexShrink: 0
+          }} 
+        />
+      );
+    }
+    return (
+        <div style={{ 
+            width: `${size}px`, 
+            height: `${size}px`, 
+            borderRadius: '50%', 
+            backgroundColor: '#f0f0f0', 
+            display: 'flex', 
+            alignItems: 'center', 
+            justifyContent: 'center', 
+            fontSize: `${size / 2.5}px`, 
+            color: '#666',
+            flexShrink: 0,
+            fontWeight: 'bold'
+        }}>
+            {user.name.charAt(0)}
+        </div>
+      );
+    };
+
   return (
     <div style={{ maxWidth: '1000px', margin: '0 auto', padding: '20px' }}>
       <Link to="/" style={{ display: 'inline-block', marginBottom: '20px', color: '#666', textDecoration: 'none' }}>
@@ -37,21 +73,7 @@ export const UserPage = () => {
       }}>
         
         {/* ユーザーアイコン風のデザイン (あると見栄えが良いので追加) */}
-        <div style={{ 
-            width: '80px', 
-            height: '80px', 
-            borderRadius: '50%', 
-            backgroundColor: '#f0f0f0', 
-            display: 'flex', 
-            alignItems: 'center', 
-            justifyContent: 'center', 
-            fontSize: '32px', 
-            color: '#666',
-            flexShrink: 0, // 画面が狭くなっても潰れないようにする
-            fontWeight: 'bold'
-        }}>
-            {user.name.charAt(0)}
-        </div>
+        {renderIcon(80)}
 
         <div style={{ flex: 1 }}>
             <h1 style={{ margin: '0 0 8px 0', fontSize: '24px' }}>{user.name}</h1>

@@ -6,6 +6,7 @@ export interface UserProfileData {
   name: string;
   firebase_uid: string;
   bio: string;
+  image_url?: string;
 }
 
 export const useUserProfile = () => {
@@ -52,20 +53,26 @@ export const useUserProfile = () => {
   };
 
   // プロフィール更新機能
-  const updateUserProfile = async (name: string, bio: string) => {
+  const updateUserProfile = async (name: string, bio: string, imageFile: File | null) => {
     try {
       const auth = getAuth();
       const user = auth.currentUser;
       if (!user) return false;
       const token = await user.getIdToken();
 
+      const formData = new FormData();
+      formData.append('name', name);
+      formData.append('bio', bio);
+      if (imageFile) {
+        formData.append('image', imageFile);
+      }
+
       const res = await fetch('https://hackathon-backend-80731441408.europe-west1.run.app/users/me', {
         method: 'PUT',
         headers: {
-          'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify({ name, bio }),
+        body: formData,
       });
 
       if (!res.ok) throw new Error('更新に失敗しました');

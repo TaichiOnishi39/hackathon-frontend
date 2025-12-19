@@ -16,6 +16,7 @@ import { MyPage } from './pages/MyPage';
 import { UserPage } from './pages/UserPage';
 import { ProductRegisterPage } from './pages/ProductRegisterPage';
 import { ProductEditPage } from './pages/ProductEditPage';
+import { ProfileEditPage } from './pages/ProfileEditPage';
 
 // ★新しいガード: プロフィール登録済みかチェックする
 const ProfileGuard = () => {
@@ -70,6 +71,7 @@ const App = () => {
               <Route path="/messages" element={<ChatListPage />} />
               <Route path="/users/:userId" element={<UserPage />} />
               <Route path="/products/:id/edit" element={<ProductEditPage />} />
+              <Route path="profile/edit" element={<ProfileEditPage />} />
             </Route>
             </Route>
           </>

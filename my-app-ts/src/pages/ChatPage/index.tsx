@@ -36,49 +36,60 @@ export const ChatPage = () => {
     }, 100);
   };
 
+  const renderPartnerIcon = (size: number) => {
+    if (partner?.image_url) {
+      return (
+        <img 
+          src={partner.image_url} 
+          alt={partner.name}
+          style={{ width: `${size}px`, height: `${size}px`, borderRadius: '50%', objectFit: 'cover', flexShrink: 0, border: '1px solid #ddd' }}
+        />
+      );
+    }
+    return (
+      <div style={{ 
+          width: `${size}px`, height: `${size}px`, borderRadius: '50%', backgroundColor: '#eee', 
+          display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: `${size/2.5}px`, color: '#666', flexShrink: 0
+      }}>
+          {partner ? partner.name.charAt(0) : '?'}
+      </div>
+    );
+  };
+
   return (
     <div style={{ maxWidth: '600px', margin: '0 auto', height: '90vh', display: 'flex', flexDirection: 'column' }}>
 
-      {/* 戻るボタン */}
+      {/* ヘッダーエリア */}
       <div style={{ 
-        padding: '10px', 
+        padding: '10px 15px', 
         borderBottom: '1px solid #ddd', 
         display: 'flex', 
         alignItems: 'center',
-        backgroundColor: '#fff' 
+        backgroundColor: '#fff',
+        zIndex: 10
       }}>
         <button 
-          onClick={() => navigate(-1)} // ★1つ前の画面に戻る
-          style={{ 
-            marginRight: '15px', 
-            border: 'none', 
-            background: 'none', 
-            fontSize: '20px', 
-            cursor: 'pointer',
-            color: '#666'
-          }}
+          onClick={() => navigate(-1)} 
+          style={{ marginRight: '15px', border: 'none', background: 'none', fontSize: '20px', cursor: 'pointer', color: '#666' }}
         >
           &lt; 戻る
         </button>
+        
         <div style={{ flex: 1 }}>
             {partner ? (
                 <Link 
                     to={`/users/${partner.id}`} 
-                    style={{ 
-                        textDecoration: 'none', 
-                        color: '#333',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '8px'
-                    }}
+                    style={{ textDecoration: 'none', color: '#333', display: 'flex', alignItems: 'center', gap: '10px' }}
                 >
-                    <h2 style={{ margin: 0, fontSize: '18px' }}>{partner.name}</h2>
-                    <span style={{ fontSize: '12px', color: '#007bff', border: '1px solid #007bff', padding: '2px 6px', borderRadius: '12px' }}>
-                        プロフィールを見る
-                    </span>
+                    {/* ★ヘッダーにもアイコンを表示 */}
+                    {renderPartnerIcon(36)}
+                    <div>
+                        <h2 style={{ margin: 0, fontSize: '16px' }}>{partner.name}</h2>
+                        <span style={{ fontSize: '11px', color: '#007bff' }}>プロフィールを見る</span>
+                    </div>
                 </Link>
             ) : (
-                <h2 style={{ margin: 0, fontSize: '18px' }}>チャット</h2>
+                <h2 style={{ margin: 0, fontSize: '18px' }}>...</h2>
             )}
         </div>
       </div>
