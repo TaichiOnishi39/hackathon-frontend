@@ -4,11 +4,13 @@ import { useChat } from './useChat';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { getAuth } from 'firebase/auth';
+import { useSettings } from '../../contexts/SettingsContext';
 
 export const ChatPage = () => {
   const { messages, inputText, setInputText, sendMessage, loading, partnerId, isSending, partner, unsendMessage, deleteMessage } = useChat();
   const auth = getAuth();
   const navigate = useNavigate();
+  const { settings } = useSettings();
   // 注: ここでの currentUser.uid は FirebaseのUIDです。
   // バックエンドから返ってくる messages の sender_id はバックエンドの User ID (ULID) なので
   // 本来は「自分のバックエンドID」を知っておく必要があります。
@@ -34,6 +36,18 @@ export const ChatPage = () => {
     setTimeout(() => {
       bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, 100);
+  };
+
+  const handleDeleteCheck = async (messageId: string) => {
+    if (settings.isSubscribed) {
+        // 設定で「PRO」になっていれば実行
+        await deleteMessage(messageId);
+    } else {
+        // なっていなければ誘導
+        if (window.confirm("履歴の完全な削除にはフリフリプレミアムへの加入が必要です。\n設定ページから加入しますか？")) {
+            navigate('/settings');
+        }
+    }
   };
 
   const renderPartnerIcon = (size: number) => {
@@ -152,7 +166,7 @@ export const ChatPage = () => {
                     </button>
                   ) : (
                     <button 
-                      onClick={() => deleteMessage(msg.id)}
+                      onClick={() => handleDeleteCheck(msg.id)}
                       style={{ border: 'none', background: 'none', color: '#dc3545', fontSize: '10px', cursor: 'pointer', whiteSpace: 'nowrap' }}
                     >
                       削除

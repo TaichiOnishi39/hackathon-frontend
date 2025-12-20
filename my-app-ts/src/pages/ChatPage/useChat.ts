@@ -123,7 +123,7 @@ export const useChat = () => {
   };
 
   const unsendMessage = async (messageId: string) => {
-    if (!window.confirm("送信を取り消しますか？\n（相手の画面には「取り消しました」と表示されます）")) return;
+    if (!window.confirm("送信を取り消しますか？\n（「メッセージの送信を取り消しました」と表示されます）")) return;
     try {
       const user = auth.currentUser;
       if (!user) return;
