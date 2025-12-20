@@ -20,20 +20,30 @@ export interface ChatUser {
     image_url?: string;
 }
 
+// 簡易的な商品情報の型定義
+interface SimpleProduct {
+    id: string;
+    name: string;
+    price: number;
+    image_url: string;
+    status: 'on_sale' | 'sold_out';
+}
+
 export const useChat = () => {
   const { userId } = useParams<{ userId: string }>(); 
   const [searchParams] = useSearchParams();
-  const productId = searchParams.get('productId');
+  // ★修正: 遷移元によっては product_id だったり productId だったりする可能性があるので両方見る
+  const productId = searchParams.get('product_id') || searchParams.get('productId');
 
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputText, setInputText] = useState('');
   const [loading, setLoading] = useState(true);
   const [isSending, setIsSending] = useState(false);
   const [partner, setPartner] = useState<ChatUser | null>(null);
+  const [targetProduct, setTargetProduct] = useState<SimpleProduct | null>(null); // ★追加: 対象商品
   
   const auth = getAuth();
-  const myId = auth.currentUser?.uid; // 自分のFirebaseUID (※注: バックエンドでUserテーブルのIDと照合されます)
-
+  
   // 1. チャット履歴の取得
   const fetchMessages = async () => {
     if (!userId) return;
@@ -47,7 +57,7 @@ export const useChat = () => {
       });
       if (!res.ok) throw new Error('チャットの取得に失敗しました');
       const data = await res.json();
-      setMessages(data || []); // nullなら空配列
+      setMessages(data || []); 
     } catch (err) {
       console.error(err);
     } finally {
@@ -67,6 +77,20 @@ export const useChat = () => {
     }
   };
 
+  // ★追加: 問い合わせ対象の商品情報を取得
+  const fetchTargetProduct = async () => {
+    if (!productId) return;
+    try {
+        const res = await fetch(`https://hackathon-backend-80731441408.europe-west1.run.app/products/${productId}`);
+        if (res.ok) {
+            const data = await res.json();
+            setTargetProduct(data);
+        }
+    } catch (err) {
+        console.error("商品情報の取得に失敗", err);
+    }
+  };
+
   // 既読にする処理
   const markAsRead = async () => {
     if (!userId) return;
@@ -75,7 +99,6 @@ export const useChat = () => {
       if (!user) return;
       const token = await user.getIdToken();
 
-      // エラーになっても画面操作を止める必要はないので await はするがエラーハンドリングはログ出力程度
       await fetch(`https://hackathon-backend-80731441408.europe-west1.run.app/messages/read?partner_id=${userId}`, {
         method: 'POST',
         headers: { Authorization: `Bearer ${token}` }
@@ -111,7 +134,6 @@ export const useChat = () => {
 
       if (!res.ok) throw new Error('送信に失敗しました');
       
-      // 送信成功したら入力欄を空にして、再取得（またはリストに追加）
       setInputText('');
       fetchMessages(); 
       
@@ -172,19 +194,21 @@ export const useChat = () => {
     if (!userId) return;
     fetchMessages();
     fetchPartner();
+    fetchTargetProduct(); // ★追加
     markAsRead();
 
     const intervalId = setInterval(() => {
         fetchMessages();
-        // 相手がメッセージを送ってきたら、見ている間はすぐに既読にする
         markAsRead(); 
       }, 3000);
     return () => {
       clearInterval(intervalId);
     };  
-  }, [userId]);
+  }, [userId]); // productIdが変わった時も再取得したほうが良いが、通常チャット画面でIDは変わらないのでuserId依存でOK
 
-
-
-  return { messages, inputText, setInputText, sendMessage, loading, partnerId: userId, isSending, partner, unsendMessage, deleteMessage};
+  return { 
+      messages, inputText, setInputText, sendMessage, loading, 
+      partnerId: userId, isSending, partner, unsendMessage, deleteMessage,
+      targetProduct // ★追加: これを返す
+  };
 };

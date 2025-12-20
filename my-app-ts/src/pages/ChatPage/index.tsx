@@ -3,21 +3,17 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useChat } from './useChat';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
-import { getAuth } from 'firebase/auth';
 import { useSettings } from '../../contexts/SettingsContext';
 
 export const ChatPage = () => {
-  const { messages, inputText, setInputText, sendMessage, loading, partnerId, isSending, partner, unsendMessage, deleteMessage } = useChat();
-  const auth = getAuth();
+  // ★ targetProduct を受け取る
+  const { 
+    messages, inputText, setInputText, sendMessage, loading, 
+    partnerId, isSending, partner, unsendMessage, deleteMessage, targetProduct 
+  } = useChat();
+
   const navigate = useNavigate();
   const { settings } = useSettings();
-  // 注: ここでの currentUser.uid は FirebaseのUIDです。
-  // バックエンドから返ってくる messages の sender_id はバックエンドの User ID (ULID) なので
-  // 本来は「自分のバックエンドID」を知っておく必要があります。
-  // ★簡易対応: 
-  // 自分のメッセージかどうかを判定するために、APIレスポンスに「これは自分だよフラグ」があるのが理想ですが
-  // 今回は「送信したら右に出る」雰囲気を作るため、
-  // 「sender_id が partnerId (URLのID) と違うなら自分」とみなします。
 
   // 自動スクロール用
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -26,13 +22,12 @@ export const ChatPage = () => {
     if (loading || messages.length === 0) return;
     if (isFirstLoad.current) {
         bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
-        isFirstLoad.current = false; // 一度スクロールしたらフラグを折る
+        isFirstLoad.current = false;
       }
   }, [messages, loading]);
 
   const handleSend = async () => {
     await sendMessage();
-    // 送信してメッセージが増えたタイミングに合わせてスクロール
     setTimeout(() => {
       bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, 100);
@@ -40,10 +35,8 @@ export const ChatPage = () => {
 
   const handleDeleteCheck = async (messageId: string) => {
     if (settings.isSubscribed) {
-        // 設定で「PRO」になっていれば実行
         await deleteMessage(messageId);
     } else {
-        // なっていなければ誘導
         if (window.confirm("履歴の完全な削除にはフリフリプレミアムへの加入が必要です。\n設定ページから加入しますか？")) {
             navigate('/settings');
         }
@@ -75,76 +68,108 @@ export const ChatPage = () => {
 
     {/* ヘッダーエリア */}
     <div style={{ 
-        height: '64px', // 高さを固定して安定させる
-        padding: '0 16px', 
+        // height: '64px', // 高さを固定すると商品情報が入った時に崩れるので削除または minHeight にする
+        minHeight: '64px',
+        padding: '10px 16px', 
         borderBottom: '1px solid #f0f0f0', 
         display: 'flex', 
-        alignItems: 'center',
-        backgroundColor: 'rgba(255, 255, 255, 0.95)', // 少し透過させてモダンに
-        backdropFilter: 'blur(10px)', // すりガラス効果
+        flexDirection: 'column', // 商品情報が入るため縦並びを許可
+        backgroundColor: 'rgba(255, 255, 255, 0.95)',
+        backdropFilter: 'blur(10px)',
         position: 'sticky',
         top: 0,
         zIndex: 100,
         boxShadow: '0 1px 2px rgba(0,0,0,0.03)'
       }}>
-        {/* 戻るボタン: */}
-        <div style={{ marginBottom: '20px' }}>
-        {/* ★修正: LinkからonClickでnavigate(-1)するボタンに変更 */}
-        <button 
-          onClick={() => navigate(-1)} 
-          style={{ 
-            display: 'inline-flex', 
-            alignItems: 'center', 
-            gap: '5px', 
-            textDecoration: 'none', 
-            color: '#666', 
-            fontWeight: '500',
-            background: 'none',
-            border: 'none',
-            cursor: 'pointer',
-            padding: 0,
-            fontSize: '16px',
-            fontFamily: 'inherit'
-          }}
-        >
-          <span>&lt;</span> 戻る
-        </button>
-      </div>
         
-        {/* 中央: 相手の情報 */}
-        <div style={{ flex: 1, display: 'flex', justifyContent: 'center', paddingRight: '48px' /* 戻るボタンの分だけ右に余白を入れて完全中央揃えにする */ }}>
-            {partner ? (
+        {/* 上段: 戻るボタンと相手の名前 */}
+        <div style={{ display: 'flex', alignItems: 'center', width: '100%' }}>
+            <div style={{ width: '40px' }}> {/* 左側のスペース確保 */}
+                <button 
+                onClick={() => navigate(-1)} 
+                style={{ 
+                    display: 'inline-flex', alignItems: 'center', gap: '5px', 
+                    color: '#666', background: 'none', border: 'none', 
+                    cursor: 'pointer', padding: 0, fontSize: '16px'
+                }}
+                >
+                <span>&lt;</span> 戻る
+                </button>
+            </div>
+            
+            <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
+                {partner ? (
+                    <Link 
+                        to={`/users/${partner.id}`} 
+                        style={{ textDecoration: 'none', color: '#333', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px' }}
+                    >
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        {renderPartnerIcon(28)}
+                        <h2 style={{ margin: 0, fontSize: '16px', fontWeight: 'bold' }}>{partner.name}</h2>
+                        </div>
+                    </Link>
+                ) : (
+                    <h2 style={{ margin: 0, fontSize: '16px', color: '#ccc' }}>...</h2>
+                )}
+            </div>
+            <div style={{ width: '40px' }}></div> {/* 右側のバランス用スペース */}
+        </div>
+
+        {/* ★追加: 対象商品がある場合は表示 */}
+        {targetProduct && (
+            <div style={{ 
+                marginTop: '10px', 
+                padding: '10px', 
+                backgroundColor: '#f8f9fa', 
+                borderRadius: '8px', 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: '12px',
+                textDecoration: 'none',
+                color: 'inherit'
+            }}>
+                {targetProduct.image_url ? (
+                    <img 
+                        src={targetProduct.image_url} 
+                        alt={targetProduct.name} 
+                        style={{ width: '48px', height: '48px', objectFit: 'cover', borderRadius: '4px', backgroundColor: '#fff' }} 
+                    />
+                ) : (
+                    <div style={{ width: '48px', height: '48px', backgroundColor: '#eee', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '20px' }}>📦</div>
+                )}
+                
+                <div style={{ flex: 1, overflow: 'hidden' }}>
+                    <div style={{ fontSize: '14px', fontWeight: 'bold', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        {targetProduct.name}
+                    </div>
+                    <div style={{ fontSize: '14px', color: '#e91e63', fontWeight: 'bold' }}>
+                        ¥{targetProduct.price.toLocaleString()}
+                    </div>
+                </div>
+
                 <Link 
-                    to={`/users/${partner.id}`} 
+                    to={`/products/${targetProduct.id}`}
                     style={{ 
-                      textDecoration: 'none', 
-                      color: '#333', 
-                      display: 'flex', 
-                      flexDirection: 'column', // 上下に並べる
-                      alignItems: 'center', 
-                      gap: '2px'
+                        fontSize: '12px', 
+                        color: '#007bff', 
+                        fontWeight: 'bold', 
+                        textDecoration: 'none',
+                        border: '1px solid #007bff',
+                        padding: '4px 10px',
+                        borderRadius: '15px',
+                        backgroundColor: '#fff'
                     }}
                 >
-                    {/* 名前を大きく表示 */}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      {renderPartnerIcon(28)} {/* アイコンは少し小さめに */}
-                      <h2 style={{ margin: 0, fontSize: '16px', fontWeight: 'bold' }}>{partner.name}</h2>
-                    </div>
-                    {/* サブテキスト */}
-                    <span style={{ fontSize: '10px', color: '#007bff', fontWeight: '500' }}>
-                      プロフィールを見る &gt;
-                    </span>
+                    確認する
                 </Link>
-            ) : (
-                <h2 style={{ margin: 0, fontSize: '16px', color: '#ccc' }}>...</h2>
-            )}
-        </div>
+            </div>
+        )}
+
       </div>
 
       {/* メッセージ表示エリア */}
       <div style={{ flex: 1, overflowY: 'auto', padding: '20px', backgroundColor: '#f0f2f5' }}>
         {loading ? <p>読み込み中...</p> : messages.map((msg) => {
-          // 相手(partnerId)からのメッセージでなければ、自分とみなす
           const isMe = msg.sender_id !== partnerId; 
           
           return (
@@ -156,7 +181,6 @@ export const ChatPage = () => {
                   </div>
               )}
 
-              {/* 自分のメッセージの場合、左側に操作ボタンを表示 */}
               {isMe && (
                 <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', marginRight: '6px', gap: '2px' }}>
                   {!msg.is_deleted ? (
@@ -187,8 +211,6 @@ export const ChatPage = () => {
                 wordBreak: 'break-word',
                 whiteSpace: 'pre-wrap'
               }}>
-
-                {/* 商品情報の表示（削除されていない場合のみ） */}
                 {!msg.is_deleted && msg.product_id && (
                   <div style={{ 
                     fontSize: '0.85em', 
@@ -209,10 +231,7 @@ export const ChatPage = () => {
                     </Link>
                   </div>
                 )}
-            
-                {/* ★追加: 削除済みならテキストを変更 */}
                 {msg.is_deleted ? "メッセージの送信を取り消しました" : msg.content}
-
               </div>
             </div>
           );
@@ -238,10 +257,10 @@ export const ChatPage = () => {
 
         <button 
             onClick={handleSend} 
-            disabled={isSending || !inputText.trim()} // ★送信中または空文字ならボタン無効
+            disabled={isSending || !inputText.trim()}
             style={{ 
                 padding: '8px 16px',
-                backgroundColor: isSending ? '#ccc' : '#007bff', // 送信中はグレーアウト
+                backgroundColor: isSending ? '#ccc' : '#007bff',
                 color: '#fff',
                 border: 'none',
                 cursor: isSending ? 'not-allowed' : 'pointer'
