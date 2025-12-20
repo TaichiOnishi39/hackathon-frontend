@@ -87,27 +87,29 @@ export const ChatPage = () => {
         zIndex: 100,
         boxShadow: '0 1px 2px rgba(0,0,0,0.03)'
       }}>
-        {/* 戻るボタン: 円形のクリックエリアにして押しやすく */}
-        <Link 
-          to="/messages" 
+        {/* 戻るボタン: */}
+        <div style={{ marginBottom: '20px' }}>
+        {/* ★修正: LinkからonClickでnavigate(-1)するボタンに変更 */}
+        <button 
+          onClick={() => navigate(-1)} 
           style={{ 
-            display: 'flex', 
+            display: 'inline-flex', 
             alignItems: 'center', 
-            justifyContent: 'center',
-            width: '40px', 
-            height: '40px',
-            borderRadius: '50%',
+            gap: '5px', 
             textDecoration: 'none', 
             color: '#666', 
-            fontSize: '24px',
-            transition: 'background-color 0.2s',
-            marginRight: '8px' // 相手情報との間隔
+            fontWeight: '500',
+            background: 'none',
+            border: 'none',
+            cursor: 'pointer',
+            padding: 0,
+            fontSize: '16px',
+            fontFamily: 'inherit'
           }}
-          onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#f5f5f5'}
-          onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
         >
-          ‹
-        </Link>
+          <span>&lt;</span> 戻る
+        </button>
+      </div>
         
         {/* 中央: 相手の情報 */}
         <div style={{ flex: 1, display: 'flex', justifyContent: 'center', paddingRight: '48px' /* 戻るボタンの分だけ右に余白を入れて完全中央揃えにする */ }}>
