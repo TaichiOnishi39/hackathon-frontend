@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom'; // Link は使わないので削除
 import { useProductDetail } from '../ProductDetailPage/useProductDetail';
 import { useUserProfile } from '../../features/user/components/UserProfile/useUserProfile';
 import { Button } from '../../components/ui/Button';
@@ -24,7 +24,7 @@ export const ProductEditPage = () => {
       // 権限チェック: userProfile.id と product.user_id を比較
       if (!userProfile || userProfile.id !== product.user_id) {
         alert("編集権限がありません");
-        navigate(`/products/${id}`);
+        navigate(-1); // ★権限がない場合も「戻る」
         return;
       }
 
@@ -41,7 +41,9 @@ export const ProductEditPage = () => {
     if (!product) return;
     const success = await updateProduct(name, description, Number(price));
     if (success) {
-      navigate(`/products/${product.id}`);
+      // ★修正: 保存完了時は「ページ移動」ではなく「1つ戻る」
+      // これにより、商品詳細ページの履歴が重複せず、きれいな履歴を保てます
+      navigate(-1);
     }
   };
 
@@ -49,7 +51,8 @@ export const ProductEditPage = () => {
     if (window.confirm('本当にこの商品を削除しますか？\n（この操作は取り消せません）')) {
       const success = await deleteProduct();
       if (success) {
-        navigate('/');
+        // 削除時は商品詳細に戻れない（消えたから）ので、トップページへ移動(replace)
+        navigate('/', { replace: true });
       }
     }
   };
@@ -60,9 +63,24 @@ export const ProductEditPage = () => {
 
   return (
     <div style={{ maxWidth: '600px', margin: '0 auto', padding: '40px 20px', paddingBottom: '80px' }}>
-      <Link to={`/products/${id}`} style={{ display: 'inline-block', marginBottom: '20px', color: '#666', textDecoration: 'none', fontWeight: '500' }}>
+      {/* ★修正: キャンセルボタンも navigate(-1) に変更 */}
+      <button 
+        onClick={() => navigate(-1)} 
+        style={{ 
+          display: 'inline-block', 
+          marginBottom: '20px', 
+          color: '#666', 
+          fontWeight: '500',
+          background: 'none',
+          border: 'none',
+          cursor: 'pointer',
+          padding: 0,
+          fontSize: '16px',
+          fontFamily: 'inherit'
+        }}
+      >
         &lt; キャンセルして戻る
-      </Link>
+      </button>
 
       <div style={{ backgroundColor: '#fff', padding: '40px', borderRadius: '16px', boxShadow: '0 4px 20px rgba(0,0,0,0.05)' }}>
         <h1 style={{ fontSize: '24px', marginBottom: '30px', textAlign: 'center', color: '#333' }}>商品情報の編集</h1>
@@ -99,14 +117,14 @@ export const ProductEditPage = () => {
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-          {/* 保存ボタン (メイン) */}
+          {/* 保存ボタン */}
           <Button 
             onClick={handleSave} 
             style={{ 
               width: '100%', 
               padding: '14px', 
               fontSize: '16px', 
-              backgroundColor: '#007bff', // 統一感のある青
+              backgroundColor: '#007bff',
               borderRadius: '30px', 
               fontWeight: 'bold',
               boxShadow: '0 4px 12px rgba(0, 123, 255, 0.3)',
@@ -120,7 +138,7 @@ export const ProductEditPage = () => {
           
           <div style={{ borderTop: '1px solid #eee', margin: '10px 0' }}></div>
 
-          {/* 削除ボタン (サブ/危険) */}
+          {/* 削除ボタン */}
           <Button 
             onClick={handleDelete} 
             style={{ 
@@ -129,7 +147,7 @@ export const ProductEditPage = () => {
               fontSize: '16px', 
               backgroundColor: '#fff', 
               color: '#dc3545',
-              border: '2px solid #dc3545', // アウトラインスタイル
+              border: '2px solid #dc3545',
               borderRadius: '30px',
               fontWeight: 'bold',
               transition: 'all 0.2s',
