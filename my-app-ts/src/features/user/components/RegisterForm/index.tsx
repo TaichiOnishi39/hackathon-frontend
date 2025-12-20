@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useRegister } from './useRegister';
 import { Input } from '../../../../components/ui/Input';
 import { Button } from '../../../../components/ui/Button';
+import toast from 'react-hot-toast';
 
 export const RegisterForm = () => {
   const navigate = useNavigate();
@@ -22,7 +23,7 @@ export const RegisterForm = () => {
   // 登録完了したらホームへ遷移
   useEffect(() => {
     if (isSuccess) {
-      alert("登録が完了しました！");
+      toast.success("登録が完了しました！");
       navigate('/');
     }
   }, [isSuccess, navigate]);

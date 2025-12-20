@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { getAuth } from 'firebase/auth';
+import toast from 'react-hot-toast';
 
 export interface UserProfileData {
   id: string;
@@ -84,7 +85,7 @@ export const useUserProfile = () => {
 
     } catch (err: any) {
       console.error(err);
-      alert(err.message);
+      toast.error(err.message);
       return false;
     }
   };

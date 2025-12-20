@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import { onAuthStateChanged, User } from 'firebase/auth';
+import { Toaster } from 'react-hot-toast';
 import { auth } from './firebase';
 import { useUserProfile } from './features/user/components/UserProfile/useUserProfile';
 import { MainLayout } from './components/layout/MainLayout';
@@ -52,6 +53,7 @@ const App = () => {
   return (
     <SettingsProvider>
     <BrowserRouter>
+    <Toaster position="top-center" reverseOrder={false} />
       <Routes>
         {/* ▼ 未ログインならログイン画面へ */}
         <Route path="/login" element={user ? <Navigate to="/" /> : <LoginPage />} />

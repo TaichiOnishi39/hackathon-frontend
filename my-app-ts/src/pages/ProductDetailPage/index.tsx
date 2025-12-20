@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import { useProductDetail } from './useProductDetail';
 import { useUserProfile } from '../../features/user/components/UserProfile/useUserProfile';
 import { Button } from '../../components/ui/Button';
@@ -36,7 +37,7 @@ export const ProductDetailPage = () => {
   // いいねボタンのハンドラ
   const handleToggleLike = () => {
     if (!userProfile) {
-      alert("ログインしてください");
+      toast.error("ログインしてください");
       return;
     }
     // 楽観的UI更新（API完了を待たずに見た目を変える）
@@ -73,7 +74,7 @@ export const ProductDetailPage = () => {
 
   const handleChat = () => {
     if (!userProfile) {
-      alert("ログインしてください");
+      toast.error("ログインしてください");
       return;
     }
     navigate(`/chat/${product.user_id}?product_id=${product.id}`);

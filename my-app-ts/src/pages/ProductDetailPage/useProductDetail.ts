@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
+import toast from 'react-hot-toast';
 
 export interface ProductDetail {
   id: string;
@@ -51,7 +52,7 @@ export const useProductDetail = () => {
       const auth = getAuth();
       const user = auth.currentUser;
       if (!user) {
-        alert("ログインしてください");
+        toast.error("ログインしてください");
         return;
       }
       const token = await user.getIdToken();
@@ -66,12 +67,12 @@ export const useProductDetail = () => {
         throw new Error(errText);
       }
 
-      alert("購入しました！🎉");
+      toast.success("購入しました！🎉");
       fetchProduct();
 
     } catch (err: any) {
       console.error(err);
-      alert("購入に失敗しました: " + err.message);
+      toast.error("購入に失敗しました: " + err.message);
     }
   };
 
@@ -93,11 +94,11 @@ export const useProductDetail = () => {
 
       if (!res.ok) throw new Error("削除に失敗しました");
       
-      alert("商品を削除しました");
+      toast.success("商品を削除しました");
       return true; // 成功
 
     } catch (err: any) {
-      alert(err.message);
+      toast.error(err.message);
       return false;
     }
   };
@@ -124,11 +125,11 @@ export const useProductDetail = () => {
 
       // 成功したらローカルのstateも更新
       setProduct(prev => prev ? { ...prev, name, description, price } : null);
-      alert("更新しました");
+      toast.success("更新しました");
       return true;
 
     } catch (err: any) {
-      alert(err.message);
+      toast.error(err.message);
       return false;
     }
   };
@@ -156,7 +157,7 @@ export const useProductDetail = () => {
       const auth = getAuth();
       const user = auth.currentUser;
       if (!user) {
-        alert("ログインしてください");
+        toast.error("ログインしてください");
         return;
       }
       const token = await user.getIdToken();
@@ -170,7 +171,7 @@ export const useProductDetail = () => {
         const data = await res.json();
         setIsLiked(data.liked);
       } else {
-        alert("いいねの変更に失敗しました");
+        toast.error("いいねの変更に失敗しました");
       }
     } catch (err) {
       console.error(err);

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
 import { getAuth } from 'firebase/auth';
+import toast from 'react-hot-toast';
 
 export interface Message {
   id: string;
@@ -116,7 +117,7 @@ export const useChat = () => {
       
     } catch (err) {
       console.error(err);
-      alert('送信できませんでした');
+      toast.error('送信できませんでした');
     }finally{
       setIsSending(false);
     }
@@ -137,7 +138,7 @@ export const useChat = () => {
       if (res.ok) {
         setMessages(prev => prev.map(m => m.id === messageId ? { ...m, is_deleted: true, content: '' } : m));
       } else {
-        alert("取り消しに失敗しました");
+        toast.error("取り消しに失敗しました");
       }
     } catch (err) {
       console.error(err);
@@ -159,7 +160,7 @@ export const useChat = () => {
       if (res.ok) {
         setMessages(prev => prev.filter(m => m.id !== messageId));
       } else {
-        alert("削除に失敗しました");
+        toast.error("削除に失敗しました");
       }
     } catch (err) {
       console.error(err);

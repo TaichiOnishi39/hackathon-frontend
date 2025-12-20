@@ -4,6 +4,7 @@ import { useProductDetail } from '../ProductDetailPage/useProductDetail';
 import { useUserProfile } from '../../features/user/components/UserProfile/useUserProfile';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
+import toast from 'react-hot-toast';
 
 export const ProductEditPage = () => {
   const { product, loading: productLoading, error, updateProduct, deleteProduct } = useProductDetail();
@@ -23,7 +24,7 @@ export const ProductEditPage = () => {
     if (product) {
       // 権限チェック: userProfile.id と product.user_id を比較
       if (!userProfile || userProfile.id !== product.user_id) {
-        alert("編集権限がありません");
+        toast("編集権限がありません");
         navigate(-1); // ★権限がない場合も「戻る」
         return;
       }

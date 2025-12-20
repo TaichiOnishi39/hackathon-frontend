@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { getAuth } from 'firebase/auth';
+import toast from 'react-hot-toast';
 
 // バックエンドの model.Product に対応する型
 export interface Product {
@@ -86,11 +87,11 @@ export const useProductList = () => {
 
       // 成功したら、今のstateからその商品を消す（リロードしなくて済むのでサクサク動く）
       setProducts(prev => prev.filter(p => p.id !== productId));
-      alert("商品を削除しました");
+      toast.success("商品を削除しました");
 
     } catch (err: any) {
       console.error(err);
-      alert(err.message);
+      toast.error(err.message);
     }
   };
 
@@ -128,12 +129,12 @@ export const useProductList = () => {
         return p;
       }));
       
-      alert("商品を更新しました");
+      toast.success("商品を更新しました");
       return true; // 成功したことを呼び出し元に伝える
 
     } catch (err: any) {
       console.error(err);
-      alert(err.message);
+      toast.error(err.message);
       return false;
     }
   };

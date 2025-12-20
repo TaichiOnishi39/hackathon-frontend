@@ -1,5 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import { useSettings } from '../../contexts/SettingsContext';
 
 export const SettingsPage = () => {
@@ -11,13 +12,13 @@ export const SettingsPage = () => {
       // 既に加入している場合 -> 解約の確認
       if (window.confirm("本当にフリフリプレミアムを解約しますか？\n（履歴の完全削除など様々な機能が使えなくなります）")) {
         toggleSubscription();
-        alert("解約しました。");
+        toast("解約しました", { icon: '😢' });
       }
     } else {
       // 未加入の場合 -> 加入の確認
       if (window.confirm("フリフリプレミアムに加入しますか？")) {
         toggleSubscription();
-        alert("加入しました！🎉\n様々な機能が使えるようになりました。");
+        toast.success("加入しました！🎉\n様々な機能が使えるようになりました。");
       }
     }
   };
