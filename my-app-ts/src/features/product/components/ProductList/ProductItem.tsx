@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Product } from './useProductList';
 import { Link, useNavigate } from 'react-router-dom'; // useNavigateを追加
 import { getAuth } from 'firebase/auth';
+import toast from 'react-hot-toast';
 
 type Props = {
   product: Product;
@@ -27,7 +28,7 @@ export const ProductItem = ({ product, currentUserId, onDelete, onUpdate, showDe
     e.stopPropagation();
 
     if (!currentUserId) {
-        alert("ログインしてください");
+        toast.error("ログインしてください");
         return;
     }
     if (isProcessing) return;
@@ -58,7 +59,7 @@ export const ProductItem = ({ product, currentUserId, onDelete, onUpdate, showDe
         console.error(err);
         setIsLiked(previousLiked);
         setLikeCount(previousCount);
-        alert("いいねに失敗しました");
+        toast.error("いいねに失敗しました");
     } finally {
         setIsProcessing(false);
     }

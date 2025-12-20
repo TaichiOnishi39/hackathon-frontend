@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import toast from 'react-hot-toast';
 import { 
   getAuth, 
   signInWithPopup, 
@@ -60,7 +61,7 @@ export const useAuth = () => {
     try {
       setLoading(true);
       await sendPasswordResetEmail(auth, email);
-      alert("パスワード再設定メールを送信しました。メールボックスを確認してください。");
+      toast.success("パスワード再設定メールを送信しました。メールボックスを確認してください。");
       setError(""); // エラー消去
     } catch (err: any) {
       console.error(err);

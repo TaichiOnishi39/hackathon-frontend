@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { getAuth } from 'firebase/auth';
 import { Product } from '../ProductList/useProductList';
+import toast from 'react-hot-toast';
 
 export const useUserProductList = () => {
   const [products, setProducts] = useState<Product[]>([]);
@@ -77,10 +78,10 @@ export const useUserProductList = () => {
       // 削除成功したらリストから除外
       setProducts(prev => prev.filter(p => p.id !== productId));
       setTotal(prev => prev - 1);
-      alert("商品を削除しました");
+      toast.success("商品を削除しました");
     } catch (err: any) {
       console.error(err);
-      alert(err.message);
+      toast.error(err.message);
     }
   };
 

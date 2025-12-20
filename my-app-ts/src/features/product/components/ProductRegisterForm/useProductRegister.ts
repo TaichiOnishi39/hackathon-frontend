@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { getAuth } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
 
 export const useProductRegister = () => {
   const [name, setName] = useState('');
@@ -34,11 +35,11 @@ export const useProductRegister = () => {
   // AI生成関数
   const generateDescription = async () => {
     if (!name.trim()) {
-      alert("先に「商品名」を入力してください！");
+      toast.error("先に「商品名」を入力してください！");
       return;
     }
     if (!keywords.trim()) {
-        alert("商品の特徴を入力してください（例: 新品, 限定カラー）");
+        toast.error("商品の特徴を入力してください（例: 新品, 限定カラー）");
         return;
     }
     setAiLoading(true);
@@ -71,7 +72,7 @@ export const useProductRegister = () => {
     
     } catch (e: any) {
       console.error(e);
-      alert(e.message);
+      toast.error(e.message);
     } finally {
       setAiLoading(false);
     }
@@ -80,7 +81,7 @@ export const useProductRegister = () => {
   // ★追加: 画像解析関数
   const generateFromImage = async () => {
     if (!imageFile) {
-      alert("先に画像を選択してください！");
+      toast.error("先に画像を選択してください！");
       return;
     }
 
@@ -113,11 +114,11 @@ export const useProductRegister = () => {
       if (data.description) setDescription(data.description);
       if (data.keywords) setKeywords(data.keywords); // キーワード欄も埋める
 
-      alert("画像から情報を読み取りました！✨");
+      toast.success("画像から情報を読み取りました！✨");
       
     } catch (e: any) {
       console.error(e);
-      alert("読み取りに失敗しました: " + e.message);
+      toast.error("読み取りに失敗しました: " + e.message);
     } finally {
       setAiLoading(false);
     }
@@ -173,7 +174,7 @@ export const useProductRegister = () => {
         throw new Error(errorText || '商品登録に失敗しました');
       }
 
-      alert("商品を登録しました！");
+      toast.success("商品を登録しました！");
       // フォームをクリア
       setName('');
       setPrice('');

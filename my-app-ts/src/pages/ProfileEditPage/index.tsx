@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useUserProfile } from '../../features/user/components/UserProfile/useUserProfile';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
+import toast from 'react-hot-toast';
 
 export const ProfileEditPage = () => {
   const navigate = useNavigate();
@@ -35,12 +36,12 @@ export const ProfileEditPage = () => {
 
   const handleSave = async () => {
     if (!name.trim()) {
-      alert("名前は必須です");
+      toast.error("名前は必須です");
       return;
     }
     const success = await updateUserProfile(name, bio, imageFile);
     if (success) {
-      alert("プロフィールを更新しました");
+      toast.success("プロフィールを更新しました");
       navigate('/mypage'); // 更新後はマイページに戻る
     }
   };
