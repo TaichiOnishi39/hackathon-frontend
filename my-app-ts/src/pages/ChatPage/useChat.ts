@@ -10,6 +10,7 @@ export interface Message {
   created_at: string;
   product_id?: string;   
   product_name?: string;
+  is_deleted?: boolean;
 }
 
 export interface ChatUser {
@@ -121,6 +122,50 @@ export const useChat = () => {
     }
   };
 
+  const unsendMessage = async (messageId: string) => {
+    if (!window.confirm("送信を取り消しますか？\n（「メッセージの送信を取り消しました」と表示されます）")) return;
+    try {
+      const user = auth.currentUser;
+      if (!user) return;
+      const token = await user.getIdToken();
+
+      const res = await fetch(`https://hackathon-backend-80731441408.europe-west1.run.app/messages/${messageId}/unsend`, {
+        method: 'PUT',
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      if (res.ok) {
+        setMessages(prev => prev.map(m => m.id === messageId ? { ...m, is_deleted: true, content: '' } : m));
+      } else {
+        alert("取り消しに失敗しました");
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const deleteMessage = async (messageId: string) => {
+    if (!window.confirm("この履歴を完全に削除しますか？\n（元に戻せません）")) return;
+    try {
+      const user = auth.currentUser;
+      if (!user) return;
+      const token = await user.getIdToken();
+
+      const res = await fetch(`https://hackathon-backend-80731441408.europe-west1.run.app/messages/${messageId}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      if (res.ok) {
+        setMessages(prev => prev.filter(m => m.id !== messageId));
+      } else {
+        alert("削除に失敗しました");
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   // 初回読み込み 
   useEffect(() => {
     if (!userId) return;
@@ -140,5 +185,5 @@ export const useChat = () => {
 
 
 
-  return { messages, inputText, setInputText, sendMessage, loading, partnerId: userId, isSending, partner};
+  return { messages, inputText, setInputText, sendMessage, loading, partnerId: userId, isSending, partner, unsendMessage, deleteMessage};
 };

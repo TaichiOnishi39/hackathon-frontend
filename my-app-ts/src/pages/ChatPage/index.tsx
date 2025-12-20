@@ -4,11 +4,13 @@ import { useChat } from './useChat';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { getAuth } from 'firebase/auth';
+import { useSettings } from '../../contexts/SettingsContext';
 
 export const ChatPage = () => {
-  const { messages, inputText, setInputText, sendMessage, loading, partnerId, isSending, partner } = useChat();
+  const { messages, inputText, setInputText, sendMessage, loading, partnerId, isSending, partner, unsendMessage, deleteMessage } = useChat();
   const auth = getAuth();
   const navigate = useNavigate();
+  const { settings } = useSettings();
   // 注: ここでの currentUser.uid は FirebaseのUIDです。
   // バックエンドから返ってくる messages の sender_id はバックエンドの User ID (ULID) なので
   // 本来は「自分のバックエンドID」を知っておく必要があります。
@@ -36,6 +38,18 @@ export const ChatPage = () => {
     }, 100);
   };
 
+  const handleDeleteCheck = async (messageId: string) => {
+    if (settings.isSubscribed) {
+        // 設定で「PRO」になっていれば実行
+        await deleteMessage(messageId);
+    } else {
+        // なっていなければ誘導
+        if (window.confirm("履歴の完全な削除にはフリフリプレミアムへの加入が必要です。\n設定ページから加入しますか？")) {
+            navigate('/settings');
+        }
+    }
+  };
+
   const renderPartnerIcon = (size: number) => {
     if (partner?.image_url) {
       return (
@@ -59,37 +73,68 @@ export const ChatPage = () => {
   return (
     <div style={{ maxWidth: '600px', margin: '0 auto', height: '90vh', display: 'flex', flexDirection: 'column' }}>
 
-      {/* ヘッダーエリア */}
-      <div style={{ 
-        padding: '10px 15px', 
-        borderBottom: '1px solid #ddd', 
+    {/* ヘッダーエリア */}
+    <div style={{ 
+        height: '64px', // 高さを固定して安定させる
+        padding: '0 16px', 
+        borderBottom: '1px solid #f0f0f0', 
         display: 'flex', 
         alignItems: 'center',
-        backgroundColor: '#fff',
-        zIndex: 10
+        backgroundColor: 'rgba(255, 255, 255, 0.95)', // 少し透過させてモダンに
+        backdropFilter: 'blur(10px)', // すりガラス効果
+        position: 'sticky',
+        top: 0,
+        zIndex: 100,
+        boxShadow: '0 1px 2px rgba(0,0,0,0.03)'
       }}>
-        <button 
-          onClick={() => navigate(-1)} 
-          style={{ marginRight: '15px', border: 'none', background: 'none', fontSize: '20px', cursor: 'pointer', color: '#666' }}
+        {/* 戻るボタン: 円形のクリックエリアにして押しやすく */}
+        <Link 
+          to="/messages" 
+          style={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            justifyContent: 'center',
+            width: '40px', 
+            height: '40px',
+            borderRadius: '50%',
+            textDecoration: 'none', 
+            color: '#666', 
+            fontSize: '24px',
+            transition: 'background-color 0.2s',
+            marginRight: '8px' // 相手情報との間隔
+          }}
+          onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#f5f5f5'}
+          onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
         >
-          &lt; 戻る
-        </button>
+          ‹
+        </Link>
         
-        <div style={{ flex: 1 }}>
+        {/* 中央: 相手の情報 */}
+        <div style={{ flex: 1, display: 'flex', justifyContent: 'center', paddingRight: '48px' /* 戻るボタンの分だけ右に余白を入れて完全中央揃えにする */ }}>
             {partner ? (
                 <Link 
                     to={`/users/${partner.id}`} 
-                    style={{ textDecoration: 'none', color: '#333', display: 'flex', alignItems: 'center', gap: '10px' }}
+                    style={{ 
+                      textDecoration: 'none', 
+                      color: '#333', 
+                      display: 'flex', 
+                      flexDirection: 'column', // 上下に並べる
+                      alignItems: 'center', 
+                      gap: '2px'
+                    }}
                 >
-                    {/* ★ヘッダーにもアイコンを表示 */}
-                    {renderPartnerIcon(36)}
-                    <div>
-                        <h2 style={{ margin: 0, fontSize: '16px' }}>{partner.name}</h2>
-                        <span style={{ fontSize: '11px', color: '#007bff' }}>プロフィールを見る</span>
+                    {/* 名前を大きく表示 */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      {renderPartnerIcon(28)} {/* アイコンは少し小さめに */}
+                      <h2 style={{ margin: 0, fontSize: '16px', fontWeight: 'bold' }}>{partner.name}</h2>
                     </div>
+                    {/* サブテキスト */}
+                    <span style={{ fontSize: '10px', color: '#007bff', fontWeight: '500' }}>
+                      プロフィールを見る &gt;
+                    </span>
                 </Link>
             ) : (
-                <h2 style={{ margin: 0, fontSize: '18px' }}>...</h2>
+                <h2 style={{ margin: 0, fontSize: '16px', color: '#ccc' }}>...</h2>
             )}
         </div>
       </div>
@@ -109,19 +154,40 @@ export const ChatPage = () => {
                   </div>
               )}
 
+              {/* 自分のメッセージの場合、左側に操作ボタンを表示 */}
+              {isMe && (
+                <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', marginRight: '6px', gap: '2px' }}>
+                  {!msg.is_deleted ? (
+                    <button 
+                      onClick={() => unsendMessage(msg.id)}
+                      style={{ border: 'none', background: 'none', color: '#999', fontSize: '10px', cursor: 'pointer', whiteSpace: 'nowrap' }}
+                    >
+                      取り消し
+                    </button>
+                  ) : (
+                    <button 
+                      onClick={() => handleDeleteCheck(msg.id)}
+                      style={{ border: 'none', background: 'none', color: '#dc3545', fontSize: '10px', cursor: 'pointer', whiteSpace: 'nowrap' }}
+                    >
+                      削除
+                    </button>
+                  )}
+                </div>
+              )}
+
               <div style={{
                 maxWidth: '70%',
                 padding: '10px 14px',
                 borderRadius: '16px',
-                backgroundColor: isMe ? '#0084ff' : '#fff',
-                color: isMe ? '#fff' : '#000',
+                backgroundColor: msg.is_deleted ? '#e4e6eb' : (isMe ? '#0084ff' : '#fff'),
+                color: msg.is_deleted ? '#999' : (isMe ? '#fff' : '#000'),
                 boxShadow: '0 1px 2px rgba(0,0,0,0.1)',
                 wordBreak: 'break-word',
                 whiteSpace: 'pre-wrap'
               }}>
 
-                {/* ★追加: 商品情報の表示 */}
-                {msg.product_id && (
+                {/* 商品情報の表示（削除されていない場合のみ） */}
+                {!msg.is_deleted && msg.product_id && (
                   <div style={{ 
                     fontSize: '0.85em', 
                     marginBottom: '8px', 
@@ -141,7 +207,10 @@ export const ChatPage = () => {
                     </Link>
                   </div>
                 )}
-                {msg.content}
+            
+                {/* ★追加: 削除済みならテキストを変更 */}
+                {msg.is_deleted ? "メッセージの送信を取り消しました" : msg.content}
+
               </div>
             </div>
           );

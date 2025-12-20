@@ -7,6 +7,7 @@ export interface UserProfileData {
   firebase_uid: string;
   bio: string;
   image_url?: string;
+  is_subscribed: boolean;
 }
 
 export const useUserProfile = () => {
@@ -93,5 +94,5 @@ export const useUserProfile = () => {
   }, []);
 
   // リロード関数も返しておくと、登録後に再取得できて便利です
-  return { userProfile, loading, error, reload: fetchUserProfile, updateUserProfile };
+  return { userProfile, loading, error, reload: fetchUserProfile, updateUserProfile, setUserProfile };
 };

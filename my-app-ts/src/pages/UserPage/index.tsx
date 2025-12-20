@@ -56,9 +56,27 @@ export const UserPage = () => {
 
   return (
     <div style={{ maxWidth: '1000px', margin: '0 auto', padding: '20px' }}>
-      <Link to="/" style={{ display: 'inline-block', marginBottom: '20px', color: '#666', textDecoration: 'none' }}>
-        &lt; トップに戻る
-      </Link>
+      <div style={{ marginBottom: '20px' }}>
+        <button 
+          onClick={() => navigate(-1)} 
+          style={{ 
+            display: 'inline-flex', 
+            alignItems: 'center', 
+            gap: '5px', 
+            textDecoration: 'none', 
+            color: '#666', 
+            fontWeight: '500',
+            background: 'none',
+            border: 'none',
+            cursor: 'pointer',
+            padding: 0,
+            fontSize: '16px',
+            fontFamily: 'inherit'
+          }}
+        >
+          <span>&lt;</span> 戻る
+        </button>
+      </div>
 
       {/* プロフィールヘッダー */}
       <div style={{ 
@@ -76,7 +94,9 @@ export const UserPage = () => {
         {renderIcon(80)}
 
         <div style={{ flex: 1 }}>
-            <h1 style={{ margin: '0 0 8px 0', fontSize: '24px' }}>{user.name}</h1>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+            <h2 style={{ margin: 0, fontSize: '22px' }}>{user.name}</h2>
+            </div>
             
             <div style={{ color: '#555', whiteSpace: 'pre-wrap', marginBottom: '16px', lineHeight: '1.6', fontSize: '14px' }}>
               {user.bio || '(自己紹介はありません)'}
